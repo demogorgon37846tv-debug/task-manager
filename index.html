@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Aesthetic Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="bg-shapes"></div>
+
+  <main class="card">
+    <div class="brand">
+      <h1>Welcome</h1>
+      <p class="sub">Sign in to continue</p>
+    </div>
+
+    <form id="loginForm" class="form" onsubmit="return handleLogin(event)">
+      <div class="input-group">
+        <label for="loginUser">Username</label>
+        <input id="loginUser" name="username" autocomplete="username" required>
+      </div>
+      <div class="input-group">
+        <label for="loginPass">Password</label>
+        <input id="loginPass" type="password" name="password" autocomplete="current-password" required>
+      </div>
+
+      <button class="btn primary" type="submit">Log In</button>
+
+      <div class="help">
+        <span>Don't have an account?</span>
+        <button type="button" class="link" onclick="openSignup()">Create account</button>
+      </div>
+
+      <p id="loginMsg" class="msg"></p>
+    </form>
+  </main>
+
+  <!-- Sign up modal -->
+  <div id="signupModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <button class="close" onclick="closeSignup()">✕</button>
+      <h2>Create account</h2>
+      <form id="signupForm" onsubmit="return handleSignup(event)">
+        <div class="input-group">
+          <label for="signupUser">Username</label>
+          <input id="signupUser" required>
+        </div>
+        <div class="input-group">
+          <label for="signupPass">Password</label>
+          <input id="signupPass" type="password" required>
+        </div>
+        <div class="input-group">
+          <label for="signupPass2">Confirm password</label>
+          <input id="signupPass2" type="password" required>
+        </div>
+
+        <button class="btn primary" type="submit">Sign up</button>
+        <p id="signupMsg" class="msg"></p>
+      </form>
+    </div>
+  </div>
+
+  <script>
+  const API_BASE = ''; // same origin (served by server.js)
+  function setToken(token) { localStorage.setItem('auth_token', token); }
+  function getToken() { return localStorage.getItem('auth_token'); }
+  function clearToken() { localStorage.removeItem('auth_token'); }
+
+  async function handleSignup(e) {
+    e.preventDefault();
+    const u = document.getElementById('signupUser').value.trim();
+    const p = document.getElementById('signupPass').value;
+    const p2 = document.getElementById('signupPass2').value;
+    const msg = document.getElementById('signupMsg');
+    msg.textContent = '';
+    if (!u || !p) { msg.textContent = 'Provide username and password'; return false; }
+    if (p !== p2) { msg.textContent = 'Passwords do not match'; return false; }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u, password: p })
+      });
+      const data = await res.json();
+      if (!res.ok) { msg.textContent = data.error || 'Signup failed'; return false; }
+      setToken(data.token);
+      // Redirect to dashboard
+      window.location.replace('dashboard.html');
+    } catch (err) {
+      msg.textContent = 'Network error';
+    }
+    return false;
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    const u = document.getElementById('loginUser').value.trim();
+    const p = document.getElementById('loginPass').value;
+    const msg = document.getElementById('loginMsg');
+    msg.textContent = '';
+
+    try {
+      const res = await fetch(`${API_BASE}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u, password: p })
+      });
+      const data = await res.json();
+      if (!res.ok) { msg.textContent = data.error || 'Login failed'; return false; }
+      setToken(data.token);
+      window.location.replace('dashboard.html');
+    } catch (err) {
+      msg.textContent = 'Network error';
+    }
+    return false;
+  }
+
+  function openSignup() {
+    const modal = document.getElementById('signupModal');
+    modal.style.display = 'flex';
+    modal.setAttribute('aria-hidden', 'false');
+    document.getElementById('signupUser').focus();
+  }
+  function closeSignup() {
+    const modal = document.getElementById('signupModal');
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden', 'true');
+    document.getElementById('signupForm').reset();
+    document.getElementById('signupMsg').textContent = '';
+  }
+
+  // Close modal on ESC
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeSignup();
+  });
+  </script>
+</body>
+</html>

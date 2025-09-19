@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DepEd Teacher's Daily Task Organizer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2E7D32;
+            --primary-light: #4CAF50;
+            --primary-dark: #1B5E20;
+            --secondary: #FFA000;
+            --secondary-light: #FFC107;
+            --secondary-dark: #FF6F00;
+            --accent: #1565C0;
+            --accent-light: #2196F3;
+            --accent-dark: #0D47A1;
+            --light-gray: #F5F5F5;
+            --medium-gray: #E0E0E0;
+            --dark-gray: #424242;
+            --text: #212121;
+            --text-light: #757575;
+            --success: #388E3C;
+            --warning: #F57C00;
+            --error: #D32F2F;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f9f9f9 0%, #e0f2e0 100%);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .date-display {
+            background-color: white;
+            color: var(--primary);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 25px;
+            margin-top: 25px;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr 2fr;
+            }
+            
+            .right-column {
+                grid-column: 1 / 3;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 25px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .right-column {
+                grid-column: 1;
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--medium-gray);
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            font-size: 1.1rem;
+        }
+        
+        .btn {
+            background: linear-gradient(to right, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(to right, var(--primary-dark), var(--primary));
+            transform: translateY(-2px);
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(to right, #6c757d, #8a939b);
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(to right, #5a6268, #6c757d);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(to right, var(--error), #F44336);
+        }
+        
+        .btn-danger:hover {
+            background: linear-gradient(to right, #C62828, var(--error));
+        }
+        
+        .form-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+        }
+        
+        .priority-high {
+            border-left: 5px solid var(--error);
+        }
+        
+        .priority-medium {
+            border-left: 5px solid var(--warning);
+        }
+        
+        .priority-low {
+            border-left: 5px solid var(--success);
+        }
+        
+        .task-item {
+            padding: 15px;
+            margin-bottom: 12px;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            cursor: grab;
+        }
+        
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .task-info {
+            flex: 1;
+        }
+        
+        .task-info h3 {
+            font-size: 1.05rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .task-info p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+        
+        .task-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 8px;
+        }
+        
+        .task-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .task-checkbox {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+        
+        .completed {
+            background-color: #f8fff8;
+        }
+        
+        .completed .task-info h3 {
+            text-decoration: line-through;
+            color: var(--success);
+        }
+        
+        .schedule-time {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .schedule-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            background-color: #E8F5E9;
+            transition: background-color 0.3s ease;
+        }
+        
+        .schedule-item:hover {
+            background-color: #C8E6C9;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #E8F5E9 0%, #ffffff 100%);
+            border-radius: 10px;
+            margin-bottom: 18px;
+            border: 1px solid var(--medium-gray);
+        }
+        
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 25px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            background-color: var(--light-gray);
+            border-top: 1px solid var(--medium-gray);
+        }
+        
+        .print-btn {
+            background: linear-gradient(to right, #555, #777);
+            margin-top: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .deped-branding {
+            text-align: center;
+            margin: 15px 0;
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .filter-options {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--medium-gray);
+            background-color: white;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-light);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--medium-gray);
+        }
+        
+        .priority-badge {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        .priority-high-badge {
+            background-color: #FFEBEE;
+            color: var(--error);
+        }
+        
+        .priority-medium-badge {
+            background-color: #FFF3E0;
+            color: var(--warning);
+        }
+        
+        .priority-low-badge {
+            background-color: #E8F5E9;
+            color: var(--success);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background: linear-gradient(to right, var(--success), #4CAF50);
+        }
+        
+        .notification.error {
+            background: linear-gradient(to right, var(--error), #F44336);
+        }
+        
+        .custom-subject-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        #custom-subject {
+            flex: 1;
+        }
+        
+        /* Print Styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            
+            #print-section, #print-section * {
+                visibility: visible;
+            }
+            
+            #print-section {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .task-item {
+                break-inside: avoid;
+            }
+        }
+        
+        .print-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .print-date {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="notification" class="notification"></div>
+
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-chalkboard-teacher logo-icon"></i>
+                    <h1>DepEd Teacher's Daily Task Organizer</h1>
+                </div>
+                <div class="date-display">
+                    <span id="current-date"></span>
+                </div>
+
+                <div id="user-area" style="display:flex;gap:12px;align-items:center;">
+                    <div id="user-greet" style="color:white;font-weight:700;"></div>
+                    <button id="logoutBtn" class="btn btn-secondary">Log out</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="deped-branding">
+            <i class="fas fa-landmark"></i> Department of Education - Republic of the Philippines
+        </div>
+        
+        <div class="main-content">
+            <div class="left-column">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-plus-circle"></i> Add New Task</h2>
+                    </div>
+                    <form id="task-form">
+                        <div class="form-group">
+                            <label for="task-title"><i class="fas fa-heading"></i> Task Title</label>
+                            <input type="text" id="task-title" class="form-control" placeholder="Enter task title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-subject"><i class="fas fa-book"></i> Subject/Activity</label>
+                            <select id="task-subject" class="form-control">
+                                <option value="">Select Subject/Activity</option>
+                                <option value="English">English</option>
+                                <option value="Math">Mathematics</option>
+                                <option value="Science">Science</option>
+                                <option value="Filipino">Filipino</option>
+                                <option value="Araling Panlipunan">Araling Panlipunan</option>
+                                <option value="MAPEH">MAPEH</option>
+                                <option value="TLE">TLE</option>
+                                <option value="ESP">ESP</option>
+                                <option value="other">Other (specify)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="custom-subject-container" style="display: none;">
+                            <div class="custom-subject-container">
+                                <input type="text" id="custom-subject" class="form-control" placeholder="Enter custom subject/activity">
+                                <button type="button" id="add-custom-subject" class="btn btn-sm">Add</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-description"><i class="fas fa-align-left"></i> Description</label>
+                            <textarea id="task-description" class="form-control" placeholder="Task details" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-time"><i class="fas fa-clock"></i> Time</label>
+                            <input type="time" id="task-time" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="task-due-date"><i class="fas fa-calendar-day"></i> Due Date</label>
+                            <input type="date" id="task-due-date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="task-priority"><i class="fas fa-exclamation-circle"></i> Priority</label>
+                            <select id="task-priority" class="form-control">
+                                <option value="low">Low Priority</option>
+                                <option value="medium">Medium Priority</option>
+                                <option value="high">High Priority</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn"><i class="fas fa-plus"></i> Add Task</button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-chart-pie"></i> Today's Stats</h2>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="total-tasks">0</div>
+                        <div class="stat-label">Total Tasks</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="completed-tasks">0</div>
+                        <div class="stat-label">Completed Tasks</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="pending-tasks">0</div>
+                        <div class="stat-label">Pending Tasks</div>
+                    </div>
+                    <button class="btn print-btn no-print" onclick="printTasks()">
+                        <i class="fas fa-print"></i> Print Tasks
+                    </button>
+                </div>
+            </div>
+            
+            <div class="middle-column">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-tasks"></i> Today's Tasks</h2>
+                        <div class="filter-options">
+                            <select id="filter-priority" class="filter-select">
+                                <option value="all">All Priorities</option>
+                                <option value="high">High Priority</option>
+                                <option value="medium">Medium Priority</option>
+                                <option value="low">Low Priority</option>
+                            </select>
+                            <select id="filter-status" class="filter-select">
+                                <option value="all">All Status</option>
+                                <option value="completed">Completed</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="tasks-container">
+                        <!-- Tasks will be added here dynamically -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="right-column">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-calendar-alt"></i> Daily Schedule</h2>
+                    </div>
+                    <div id="schedule-container">
+                        <!-- Schedule items will be added here dynamically -->
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-exclamation-triangle"></i> Upcoming Deadlines</h2>
+                    </div>
+                    <div id="deadlines-container">
+                        <!-- Deadlines will be added here dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Section (hidden by default) -->
+    <div id="print-section" style="display: none;">
+        <div class="print-header">
+            <h2>DepEd Teacher's Daily Tasks</h2>
+            <div class="print-date" id="print-date"></div>
+        </div>
+        <div id="print-tasks-container"></div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>DepEd Teacher's Daily Task Organizer © 2023 | Department of Education - Philippines</p>
+            <p>This tool is designed to help teachers manage their daily tasks and responsibilities more efficiently.</p>
+        </div>
+    </footer>
+
+    <script>
+        const API_BASE = '';
+        function getToken() { return localStorage.getItem('auth_token'); }
+        function clearToken() { localStorage.removeItem('auth_token'); }
+
+        // Per-user storage keys (set after session validation)
+        let currentUser = null;
+        let storageKey = 'depedTasks'; // will be replaced with user-specific key
+        let customKey = 'depedCustomSubjects';
+
+        // Validate token and get user info — returns true on success
+        async function validateSession(){
+            const token = getToken();
+            if (!token) {
+                window.location.replace('index.html');
+                return false;
+            }
+            try {
+                const res = await fetch(`${API_BASE}/api/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) {
+                    clearToken();
+                    window.location.replace('index.html');
+                    return false;
+                }
+                const user = await res.json();
+                currentUser = user.username;
+                // namespace localStorage per user so each account has its own data
+                storageKey = `depedTasks_${currentUser}`;
+                customKey = `depedCustomSubjects_${currentUser}`;
+                document.getElementById('user-greet').textContent = `Hi, ${currentUser}`;
+                return true;
+            } catch (e) {
+                clearToken();
+                window.location.replace('index.html');
+                return false;
+            }
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            clearToken();
+            window.location.replace('index.html');
+        });
+
+        // Main Application Module
+        const DepEdTaskManager = (() => {
+            // DOM Elements
+            const elements = {
+                taskForm: document.getElementById('task-form'),
+                taskTitle: document.getElementById('task-title'),
+                taskSubject: document.getElementById('task-subject'),
+                customSubjectContainer: document.getElementById('custom-subject-container'),
+                customSubject: document.getElementById('custom-subject'),
+                addCustomSubject: document.getElementById('add-custom-subject'),
+                taskDescription: document.getElementById('task-description'),
+                taskTime: document.getElementById('task-time'),
+                taskDueDate: document.getElementById('task-due-date'),
+                taskPriority: document.getElementById('task-priority'),
+                tasksContainer: document.getElementById('tasks-container'),
+                scheduleContainer: document.getElementById('schedule-container'),
+                deadlinesContainer: document.getElementById('deadlines-container'),
+                filterPriority: document.getElementById('filter-priority'),
+                filterStatus: document.getElementById('filter-status'),
+                currentDate: document.getElementById('current-date'),
+                totalTasks: document.getElementById('total-tasks'),
+                completedTasks: document.getElementById('completed-tasks'),
+                pendingTasks: document.getElementById('pending-tasks'),
+                notification: document.getElementById('notification'),
+                printDate: document.getElementById('print-date'),
+                printTasksContainer: document.getElementById('print-tasks-container')
+            };
+
+            // State
+            let tasks = [];
+            let customSubjects = [];
+
+            // Initialize the application
+            function init() {
+                displayCurrentDate();
+                loadTasksFromStorage();
+                loadCustomSubjects();
+                setupEventListeners();
+                showNotification('Welcome to your DepEd Task Organizer!', 'success');
+            }
+
+            // Display current date
+            function displayCurrentDate() {
+                const now = new Date();
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                elements.currentDate.textContent = now.toLocaleDateString('en-PH', options);
+                
+                // Set default due date to today
+                elements.taskDueDate.valueAsDate = now;
+            }
+
+            // Set up event listeners
+            function setupEventListeners() {
+                elements.taskForm.addEventListener('submit', handleTaskSubmit);
+                elements.filterPriority.addEventListener('change', renderTasks);
+                elements.filterStatus.addEventListener('change', renderTasks);
+                elements.taskSubject.addEventListener('change', handleSubjectChange);
+                elements.addCustomSubject.addEventListener('click', addCustomSubject);
+                
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'n') {
+                        e.preventDefault();
+                        elements.taskTitle.focus();
+                    }
+                });
+            }
+
+            // Handle subject dropdown change
+            function handleSubjectChange() {
+                if (elements.taskSubject.value === 'other') {
+                    elements.customSubjectContainer.style.display = 'block';
+                } else {
+                    elements.customSubjectContainer.style.display = 'none';
+                }
+            }
+
+            // Add custom subject
+            function addCustomSubject() {
+                const subject = elements.customSubject.value.trim();
+                if (subject) {
+                    // Add to custom subjects list if not already present
+                    if (!customSubjects.includes(subject)) {
+                        customSubjects.push(subject);
+                        saveCustomSubjects();
+                    }
+                    
+                    // Create a new option and select it
+                    const option = document.createElement('option');
+                    option.value = subject;
+                    option.textContent = subject;
+                    elements.taskSubject.appendChild(option);
+                    elements.taskSubject.value = subject;
+                    
+                    // Hide custom input
+                    elements.customSubjectContainer.style.display = 'none';
+                    
+                    // Clear custom input
+                    elements.customSubject.value = '';
+                    
+                    showNotification('Custom subject added!', 'success');
+                }
+            }
+
+            // Handle task form submission
+            function handleTaskSubmit(e) {
+                e.preventDefault();
+                
+                let subject = elements.taskSubject.value;
+                
+                // If "other" is selected but no custom subject added
+                if (subject === 'other') {
+                    showNotification('Please add a custom subject first', 'error');
+                    elements.customSubjectContainer.style.display = 'block';
+                    return;
+                }
+                
+                const newTask = {
+                    id: Date.now(),
+                    title: elements.taskTitle.value.trim(),
+                    subject: subject,
+                    description: elements.taskDescription.value.trim(),
+                    time: elements.taskTime.value,
+                    dueDate: elements.taskDueDate.value,
+                    priority: elements.taskPriority.value,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                if (!newTask.title) {
+                    showNotification('Please enter a task title', 'error');
+                    return;
+                }
+                
+                addTask(newTask);
+                elements.taskForm.reset();
+                elements.taskDueDate.valueAsDate = new Date(); // Reset to today
+                elements.customSubjectContainer.style.display = 'none';
+                
+                showNotification('Task added successfully!', 'success');
+            }
+
+            // Add a new task
+            function addTask(task) {
+                tasks.push(task);
+                saveTasksToStorage();
+                renderTasks();
+                updateStats();
+            }
+
+            // Toggle task completion status
+            function toggleTask(id) {
+                tasks = tasks.map(task => 
+                    task.id === id ? { ...task, completed: !task.completed } : task
+                );
+                saveTasksToStorage();
+                renderTasks();
+                updateStats();
+                
+                const task = tasks.find(t => t.id === id);
+                const status = task.completed ? 'completed' : 'marked as pending';
+                showNotification(`Task ${status}`, 'success');
+            }
+
+            // Delete a task
+            function deleteTask(id) {
+                if (confirm('Are you sure you want to delete this task?')) {
+                    tasks = tasks.filter(task => task.id !== id);
+                    saveTasksToStorage();
+                    renderTasks();
+                    updateStats();
+                    showNotification('Task deleted successfully', 'success');
+                }
+            }
+
+            // Render tasks based on filters
+            function renderTasks() {
+                const priorityFilter = elements.filterPriority.value;
+                const statusFilter = elements.filterStatus.value;
+                
+                let filteredTasks = tasks;
+                
+                // Apply priority filter
+                if (priorityFilter !== 'all') {
+                    filteredTasks = filteredTasks.filter(task => task.priority === priorityFilter);
+                }
+                
+                // Apply status filter
+                if (statusFilter !== 'all') {
+                    const completedFilter = statusFilter === 'completed';
+                    filteredTasks = filteredTasks.filter(task => task.completed === completedFilter);
+                }
+                
+                // Clear containers
+                elements.tasksContainer.innerHTML = '';
+                elements.scheduleContainer.innerHTML = '';
+                
+                if (filteredTasks.length === 0) {
+                    elements.tasksContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard-list"></i>
+                            <h3>No tasks found</h3>
+                            <p>Try changing your filters or add a new task</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Render tasks
+                filteredTasks.forEach(task => {
+                    const taskElement = createTaskElement(task);
+                    elements.tasksContainer.appendChild(taskElement);
+                    
+                    // Add to schedule if time is specified and not completed
+                    if (task.time && !task.completed) {
+                        const scheduleElement = createScheduleElement(task);
+                        elements.scheduleContainer.appendChild(scheduleElement);
+                    }
+                });
+                
+                // Render deadlines
+                renderDeadlines();
+            }
+
+            // Create task DOM element
+            function createTaskElement(task) {
+                const taskElement = document.createElement('div');
+                taskElement.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
+                taskElement.setAttribute('data-id', task.id);
+                
+                const priorityBadge = `<span class="priority-badge priority-${task.priority}-badge">${task.priority.toUpperCase()}</span>`;
+                
+                taskElement.innerHTML = `
+                    <div class="task-info">
+                        <h3>
+                            <span>${task.title}</span>
+                            ${task.subject ? `<span>(${task.subject})</span>` : ''}
+                            ${priorityBadge}
+                        </h3>
+                        ${task.description ? `<p>${task.description}</p>` : ''}
+                        <div class="task-meta">
+                            ${task.time ? `<span><i class="far fa-clock"></i> ${formatTime(task.time)}</span>` : ''}
+                            ${task.dueDate ? `<span><i class="far fa-calendar-alt"></i> ${formatDate(task.dueDate)}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} 
+                            onchange="DepEdTaskManager.toggleTask(${task.id})">
+                        <button class="btn btn-sm btn-danger" onclick="DepEdTaskManager.deleteTask(${task.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                return taskElement;
+            }
+
+            // Create schedule DOM element
+            function createScheduleElement(task) {
+                const scheduleElement = document.createElement('div');
+                scheduleElement.className = 'schedule-item';
+                
+                scheduleElement.innerHTML = `
+                    <div class="schedule-time">
+                        <i class="far fa-clock"></i> ${formatTime(task.time)}
+                    </div>
+                    <div>${task.title} ${task.subject ? `(${task.subject})` : ''}</div>
+                `;
+                
+                return scheduleElement;
+            }
+
+            // Render upcoming deadlines
+            function renderDeadlines() {
+                elements.deadlinesContainer.innerHTML = '';
+                
+                // Get tasks with due dates
+                const tasksWithDueDates = tasks.filter(task => task.dueDate && !task.completed);
+                
+                if (tasksWithDueDates.length === 0) {
+                    elements.deadlinesContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="far fa-smile"></i>
+                            <p>No upcoming deadlines</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Sort by due date
+                tasksWithDueDates.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                
+                // Display the next 5 deadlines
+                tasksWithDueDates.slice(0, 5).forEach(task => {
+                    const deadlineElement = document.createElement('div');
+                    deadlineElement.className = 'schedule-item';
+                    
+                    const dueDate = new Date(task.dueDate);
+                    const today = new Date();
+                    const diffTime = dueDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    let dateText = '';
+                    if (diffDays === 0) dateText = 'Today';
+                    else if (diffDays === 1) dateText = 'Tomorrow';
+                    else if (diffDays < 7) dateText = `In ${diffDays} days`;
+                    else dateText = formatDate(task.dueDate);
+                    
+                    deadlineElement.innerHTML = `
+                        <div class="schedule-time">${dateText}</div>
+                        <div>${task.title} ${task.subject ? `(${task.subject})` : ''}</div>
+                    `;
+                    
+                    elements.deadlinesContainer.appendChild(deadlineElement);
+                });
+            }
+
+            // Prepare tasks for printing
+            function preparePrintTasks() {
+                const now = new Date();
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                elements.printDate.textContent = now.toLocaleDateString('en-PH', options);
+                
+                // Clear print container
+                elements.printTasksContainer.innerHTML = '';
+                
+                // Add tasks to print container
+                tasks.forEach(task => {
+                    const taskElement = document.createElement('div');
+                    taskElement.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
+                    
+                    const priorityBadge = `<span class="priority-badge priority-${task.priority}-badge">${task.priority.toUpperCase()}</span>`;
+                    const status = task.completed ? '✓ Completed' : '◯ Pending';
+                    
+                    taskElement.innerHTML = `
+                        <div class="task-info">
+                            <h3>
+                                <span>${task.title}</span>
+                                ${task.subject ? `<span>(${task.subject})</span>` : ''}
+                                ${priorityBadge}
+                                <span style="float: right;">${status}</span>
+                            </h3>
+                            ${task.description ? `<p>${task.description}</p>` : ''}
+                            <div class="task-meta">
+                                ${task.time ? `<span><i class="far fa-clock"></i> ${formatTime(task.time)}</span>` : ''}
+                                ${task.dueDate ? `<span><i class="far fa-calendar-alt"></i> ${formatDate(task.dueDate)}</span>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    
+                    elements.printTasksContainer.appendChild(taskElement);
+                });
+            }
+
+            // Print tasks
+            function printTasks() {
+                preparePrintTasks();
+                window.print();
+            }
+
+            // Update statistics
+            function updateStats() {
+                const total = tasks.length;
+                const completed = tasks.filter(task => task.completed).length;
+                const pending = total - completed;
+                
+                elements.totalTasks.textContent = total;
+                elements.completedTasks.textContent = completed;
+                elements.pendingTasks.textContent = pending;
+            }
+
+            // Show notification
+            function showNotification(message, type = 'success') {
+                elements.notification.textContent = message;
+                elements.notification.className = `notification ${type}`;
+                elements.notification.classList.add('show');
+                
+                setTimeout(() => {
+                    elements.notification.classList.remove('show');
+                }, 3000);
+            }
+
+            // Format time to 12-hour format
+            function formatTime(timeString) {
+                if (!timeString) return '';
+                
+                const [hours, minutes] = timeString.split(':');
+                const hour = parseInt(hours);
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const formattedHour = hour % 12 || 12;
+                
+                return `${formattedHour}:${minutes} ${ampm}`;
+            }
+
+            // Format date to readable format
+            function formatDate(dateString) {
+                if (!dateString) return '';
+                
+                const options = { month: 'short', day: 'numeric', year: 'numeric' };
+                return new Date(dateString).toLocaleDateString('en-PH', options);
+            }
+
+            // Load tasks from local storage
+            function loadTasksFromStorage() {
+                const storedTasks = localStorage.getItem(storageKey);
+                if (storedTasks) {
+                    try {
+                        tasks = JSON.parse(storedTasks);
+                    } catch (e) {
+                        console.error('Error parsing tasks from localStorage', e);
+                        tasks = [];
+                    }
+                }
+                
+                renderTasks();
+                updateStats();
+            }
+
+            // Save tasks to local storage
+            function saveTasksToStorage() {
+                localStorage.setItem(storageKey, JSON.stringify(tasks));
+            }
+
+            // Load custom subjects from local storage
+            function loadCustomSubjects() {
+                const storedSubjects = localStorage.getItem(customKey);
+                if (storedSubjects) {
+                    try {
+                        customSubjects = JSON.parse(storedSubjects);
+                        
+                        // Add custom subjects to dropdown
+                        customSubjects.forEach(subject => {
+                            const option = document.createElement('option');
+                            option.value = subject;
+                            option.textContent = subject;
+                            elements.taskSubject.appendChild(option);
+                        });
+                    } catch (e) {
+                        console.error('Error parsing custom subjects from localStorage', e);
+                        customSubjects = [];
+                    }
+                }
+            }
+
+            // Save custom subjects to local storage
+            function saveCustomSubjects() {
+                localStorage.setItem(customKey, JSON.stringify(customSubjects));
+            }
+
+            // Public methods
+            return {
+                init,
+                toggleTask: (id) => toggleTask(id),
+                deleteTask: (id) => deleteTask(id),
+                printTasks: () => printTasks()
+            };
+        })();
+
+        // Initialize after session validation so storage keys are user-scoped
+        document.addEventListener('DOMContentLoaded', async () => {
+            const ok = await validateSession();
+            if (ok) DepEdTaskManager.init();
+        });
+    </script>
+</body>
+</html>
