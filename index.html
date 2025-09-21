@@ -64,7 +64,7 @@
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
             padding: 40px;
             width: 100%;
-            max-width: 450px;
+            max-width: 500px;
             transform: translateY(0);
             transition: transform 0.3s ease;
         }
@@ -317,6 +317,28 @@
         .dashboard-link:hover {
             background: #e9ecef;
         }
+        
+        .debug-panel {
+            background: #333;
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .debug-toggle {
+            background: #555;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -336,6 +358,7 @@
                 <li>Go to your Supabase project → Authentication → Settings</li>
                 <li>Add your website URL to "Site URL" and "Redirect URLs"</li>
                 <li>Enable Email provider in Authentication → Providers</li>
+                <li>Ensure the user exists and email is confirmed in your Supabase Auth users</li>
             </ol>
         </div>
 
@@ -367,6 +390,13 @@
                     <li>Try resetting your password if needed</li>
                     <li>Make sure your Supabase project is properly configured</li>
                 </ul>
+            </div>
+            
+            <button type="button" class="debug-toggle" onclick="toggleDebug()">Toggle Debug Info</button>
+            
+            <div id="debugPanel" class="debug-panel" style="display: none;">
+                <h4>Debug Information:</h4>
+                <div id="debugInfo"></div>
             </div>
             
             <a href="dashboard.html" class="dashboard-link">Go to Dashboard (for testing)</a>
@@ -407,6 +437,18 @@
         
         // Create Supabase client
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Debug function to display information
+        function debugLog(message) {
+            const debugInfo = document.getElementById('debugInfo');
+            debugInfo.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+            console.log(message);
+        }
+        
+        function toggleDebug() {
+            const debugPanel = document.getElementById('debugPanel');
+            debugPanel.style.display = debugPanel.style.display === 'none' ? 'block' : 'none';
+        }
         
         // Check if we're in a secure context (HTTPS or localhost)
         function isSecureContext() {
@@ -466,6 +508,8 @@
                 signupBtn.innerHTML = '<span class="loader"></span> Signing up...';
                 signupBtn.disabled = true;
 
+                debugLog(`Attempting to sign up with email: ${email}`);
+                
                 const { data, error } = await supabase.auth.signUp({
                     email: email,
                     password: password,
@@ -475,6 +519,7 @@
                 });
                 
                 if (error) {
+                    debugLog(`Signup error: ${error.message}`);
                     msg.textContent = error.message;
                     signupBtn.textContent = originalText;
                     signupBtn.disabled = false;
@@ -482,6 +527,7 @@
                 }
                 
                 // Successfully signed up
+                debugLog('Signup successful, check email for verification');
                 msg.textContent = 'Account created successfully! Please check your email for verification.';
                 msg.classList.add('success');
                 
@@ -498,6 +544,7 @@
                 }, 3000);
                 
             } catch (err) {
+                debugLog(`Signup exception: ${err.message}`);
                 msg.textContent = 'An error occurred during signup';
                 console.error('Signup error:', err);
                 signupBtn.textContent = originalText;
@@ -530,7 +577,7 @@
                 loginBtn.innerHTML = '<span class="loader"></span> Logging in...';
                 loginBtn.disabled = true;
                 
-                console.log('Attempting login with:', email);
+                debugLog(`Attempting login with: ${email}`);
                 
                 const { data, error } = await supabase.auth.signInWithPassword({
                     email: email,
@@ -538,6 +585,7 @@
                 });
                 
                 if (error) {
+                    debugLog(`Login error: ${error.message}`);
                     console.error('Login error:', error);
                     msg.textContent = error.message + '. Please check your credentials and try again.';
                     loginBtn.textContent = originalText;
@@ -545,6 +593,7 @@
                     return false;
                 }
                 
+                debugLog('Login successful');
                 console.log('Login successful:', data);
                 
                 // Store the access token
@@ -560,6 +609,7 @@
                 }, 1500);
                 
             } catch (err) {
+                debugLog(`Login exception: ${err.message}`);
                 msg.textContent = 'An error occurred during login';
                 console.error('Login exception:', err);
                 loginBtn.textContent = originalText;
@@ -598,24 +648,46 @@
         // Check if user is already logged in
         async function checkAuth() {
             try {
+                debugLog('Checking authentication status...');
                 const { data } = await supabase.auth.getSession();
                 if (data.session) {
+                    debugLog('User already has an active session');
                     // User is already logged in, redirect to dashboard
                     window.location.href = 'dashboard.html';
+                } else {
+                    debugLog('No active session found');
                 }
             } catch (error) {
+                debugLog(`Error checking authentication: ${error.message}`);
                 console.error('Error checking authentication:', error);
+            }
+        }
+        
+        // Test Supabase connection
+        async function testConnection() {
+            try {
+                debugLog('Testing Supabase connection...');
+                const { data, error } = await supabase.from('_test_connection').select('count').limit(1);
+                
+                if (error) {
+                    debugLog(`Supabase connection failed: ${error.message}`);
+                } else {
+                    debugLog('Supabase connection successful');
+                }
+            } catch (err) {
+                debugLog(`Connection test exception: ${err.message}`);
             }
         }
         
         // Check authentication status on page load
         document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
+            debugLog('Page loaded');
+            debugLog(`Supabase URL: ${SUPABASE_URL}`);
+            debugLog(`Current origin: ${window.location.origin}`);
+            debugLog(`Secure context: ${isSecureContext() ? 'Yes' : 'No'}`);
             
-            // Add debug info
-            console.log('Supabase initialized with URL:', SUPABASE_URL);
-            console.log('Test credentials: teacher@example.com / Password123');
-            console.log('Current origin:', window.location.origin);
+            checkAuth();
+            testConnection();
             
             // Check if we need to handle a redirect from OAuth or similar
             const hashParams = new URLSearchParams(window.location.hash.substring(1));
