@@ -1,488 +1,562 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Teacher's Login Portal</title>
-  <!-- Add Supabase client library -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher's Login Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-    body {
-      background: linear-gradient(135deg, #6e8efb, #a777e3);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      overflow-x: hidden;
-      position: relative;
-    }
+        body {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
 
-    .bg-shapes {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: -1;
-    }
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
 
-    .bg-shapes::before,
-    .bg-shapes::after {
-      content: '';
-      position: absolute;
-      border-radius: 50%;
-      opacity: 0.1;
-      background: linear-gradient(135deg, #ff9966, #ff5e62);
-    }
+        .bg-shapes::before,
+        .bg-shapes::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            background: linear-gradient(135deg, #ff9966, #ff5e62);
+        }
 
-    .bg-shapes::before {
-      width: 300px;
-      height: 300px;
-      top: -100px;
-      left: -100px;
-    }
+        .bg-shapes::before {
+            width: 300px;
+            height: 300px;
+            top: -100px;
+            left: -100px;
+        }
 
-    .bg-shapes::after {
-      width: 500px;
-      height: 500px;
-      bottom: -150px;
-      right: -150px;
-    }
+        .bg-shapes::after {
+            width: 500px;
+            height: 500px;
+            bottom: -150px;
+            right: -150px;
+        }
 
-    .card {
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-      padding: 40px;
-      width: 100%;
-      max-width: 420px;
-      transform: translateY(0);
-      transition: transform 0.3s ease;
-    }
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
 
-    .card:hover {
-      transform: translateY(-5px);
-    }
+        .card:hover {
+            transform: translateY(-5px);
+        }
 
-    .brand {
-      text-align: center;
-      margin-bottom: 30px;
-    }
+        .brand {
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-    .brand h1 {
-      color: #333;
-      font-weight: 600;
-      font-size: 28px;
-      margin-bottom: 8px;
-    }
+        .brand h1 {
+            color: #333;
+            font-weight: 600;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
 
-    .sub {
-      color: #777;
-      font-size: 16px;
-    }
+        .sub {
+            color: #777;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
 
-    .input-group {
-      margin-bottom: 20px;
-    }
+        .input-group {
+            margin-bottom: 20px;
+        }
 
-    .input-group label {
-      display: block;
-      margin-bottom: 8px;
-      color: #555;
-      font-weight: 500;
-    }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
 
-    .input-group input {
-      width: 100%;
-      padding: 15px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      font-size: 16px;
-      transition: all 0.3s;
-    }
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
 
-    .input-group input:focus {
-      outline: none;
-      border-color: #6e8efb;
-      box-shadow: 0 0 0 3px rgba(110, 142, 251, 0.2);
-    }
+        .input-group input:focus {
+            outline: none;
+            border-color: #6e8efb;
+            box-shadow: 0 0 0 3px rgba(110, 142, 251, 0.2);
+        }
 
-    .btn {
-      width: 100%;
-      padding: 15px;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
 
-    .btn.primary {
-      background: linear-gradient(135deg, #6e8efb, #a777e3);
-      color: white;
-      margin-bottom: 20px;
-    }
+        .btn.primary {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            margin-bottom: 20px;
+        }
 
-    .btn.primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(110, 142, 251, 0.4);
-    }
+        .btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(110, 142, 251, 0.4);
+        }
 
-    .help {
-      text-align: center;
-      margin-bottom: 15px;
-      color: #777;
-    }
+        .help {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #777;
+        }
 
-    .link {
-      background: none;
-      border: none;
-      color: #6e8efb;
-      cursor: pointer;
-      font-weight: 600;
-      text-decoration: underline;
-    }
+        .link {
+            background: none;
+            border: none;
+            color: #6e8efb;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: underline;
+        }
 
-    .link:hover {
-      color: #a777e3;
-    }
+        .link:hover {
+            color: #a777e3;
+        }
 
-    .msg {
-      text-align: center;
-      margin-top: 15px;
-      min-height: 20px;
-      color: #ff5e62;
-      font-weight: 500;
-    }
+        .msg {
+            text-align: center;
+            margin-top: 15px;
+            min-height: 20px;
+            color: #ff5e62;
+            font-weight: 500;
+        }
 
-    /* Success message style */
-    .msg.success {
-      color: #2ecc71;
-    }
+        .msg.success {
+            color: #2ecc71;
+        }
 
-    /* Modal styles */
-    .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      padding: 20px;
-      backdrop-filter: blur(5px);
-    }
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
 
-    .modal-card {
-      background: white;
-      border-radius: 20px;
-      padding: 30px;
-      width: 100%;
-      max-width: 450px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-      position: relative;
-      animation: modalFadeIn 0.3s ease-out;
-    }
+        .modal-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: modalFadeIn 0.3s ease-out;
+        }
 
-    @keyframes modalFadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-30px) scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
 
-    .close {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: #777;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      transition: all 0.2s;
-    }
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #777;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
 
-    .close:hover {
-      background: #f5f5f5;
-      color: #333;
-    }
+        .close:hover {
+            background: #f5f5f5;
+            color: #333;
+        }
 
-    .modal-card h2 {
-      text-align: center;
-      margin-bottom: 25px;
-      color: #333;
-      font-size: 24px;
-    }
+        .modal-card h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+            font-size: 24px;
+        }
 
-    .loader {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,.3);
-      border-radius: 50%;
-      border-top-color: #fff;
-      animation: spin 1s ease-in-out infinite;
-    }
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-  </style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .password-toggle {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #777;
+        }
+
+        .troubleshooting {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .troubleshooting h3 {
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .troubleshooting ul {
+            padding-left: 20px;
+            color: #666;
+        }
+
+        .troubleshooting li {
+            margin-bottom: 8px;
+        }
+    </style>
 </head>
 <body>
-  <div class="bg-shapes"></div>
+    <div class="bg-shapes"></div>
 
-  <main class="card">
-    <div class="brand">
-      <h1>Teacher's Portal</h1>
-      <p class="sub">Sign in to access your dashboard</p>
+    <main class="card">
+        <div class="brand">
+            <h1>Teacher's Portal</h1>
+            <p class="sub">Sign in to access your dashboard</p>
+            <p class="sub">Test with: teacher@example.com / Password123</p>
+        </div>
+
+        <form id="loginForm" class="form" onsubmit="return handleLogin(event)">
+            <div class="input-group">
+                <label for="loginUser">Email</label>
+                <input id="loginUser" name="email" type="email" autocomplete="email" required value="teacher@example.com">
+            </div>
+            <div class="input-group password-toggle">
+                <label for="loginPass">Password</label>
+                <input id="loginPass" type="password" name="password" autocomplete="current-password" required value="Password123">
+                <button type="button" class="toggle-password" onclick="togglePassword('loginPass')">👁️</button>
+            </div>
+
+            <button class="btn primary" type="submit" id="loginBtn">Log In</button>
+
+            <div class="help">
+                <span>Don't have an account?</span>
+                <button type="button" class="link" onclick="openSignup()">Create account</button>
+            </div>
+
+            <p id="loginMsg" class="msg"></p>
+
+            <div class="troubleshooting">
+                <h3>Having trouble logging in?</h3>
+                <ul>
+                    <li>Ensure you're using the correct email and password</li>
+                    <li>Check if you've verified your email address</li>
+                    <li>Try resetting your password if needed</li>
+                    <li>Make sure your Supabase project is properly configured</li>
+                </ul>
+            </div>
+        </form>
+    </main>
+
+    <!-- Sign up modal -->
+    <div id="signupModal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+            <button class="close" onclick="closeSignup()">✕</button>
+            <h2>Create Teacher Account</h2>
+            <form id="signupForm" onsubmit="return handleSignup(event)">
+                <div class="input-group">
+                    <label for="signupEmail">Email</label>
+                    <input id="signupEmail" type="email" required>
+                </div>
+                <div class="input-group password-toggle">
+                    <label for="signupPass">Password (min. 6 characters)</label>
+                    <input id="signupPass" type="password" required>
+                    <button type="button" class="toggle-password" onclick="togglePassword('signupPass')">👁️</button>
+                </div>
+                <div class="input-group password-toggle">
+                    <label for="signupPass2">Confirm password</label>
+                    <input id="signupPass2" type="password" required>
+                    <button type="button" class="toggle-password" onclick="togglePassword('signupPass2')">👁️</button>
+                </div>
+
+                <button class="btn primary" type="submit" id="signupBtn">Sign up</button>
+                <p id="signupMsg" class="msg"></p>
+            </form>
+        </div>
     </div>
 
-    <form id="loginForm" class="form" onsubmit="return handleLogin(event)">
-      <div class="input-group">
-        <label for="loginUser">Email</label>
-        <input id="loginUser" name="email" type="email" autocomplete="email" required>
-      </div>
-      <div class="input-group">
-        <label for="loginPass">Password</label>
-        <input id="loginPass" type="password" name="password" autocomplete="current-password" required>
-      </div>
+    <script>
+        // Initialize Supabase client with your provided URL and anon key
+        const SUPABASE_URL = 'https://mksawfwvcvmhekwpmlaw.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rc2F3Znd2Y3ZtaGVrd3BtbGF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNDYwOTIsImV4cCI6MjA3MzkyMjA5Mn0.xkiwSXeOyhW5-EtiQNUvbLRefwECPudcDJy8ZcxvQqs';
+        
+        // Create Supabase client
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        function setToken(token) { 
+            localStorage.setItem('auth_token', token); 
+        }
+        
+        function getToken() { 
+            return localStorage.getItem('auth_token'); 
+        }
+        
+        function clearToken() { 
+            localStorage.removeItem('auth_token'); 
+        }
 
-      <button class="btn primary" type="submit" id="loginBtn">Log In</button>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+        }
 
-      <div class="help">
-        <span>Don't have an account?</span>
-        <button type="button" class="link" onclick="openSignup()">Create account</button>
-      </div>
+        async function handleSignup(e) {
+            e.preventDefault();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPass').value;
+            const password2 = document.getElementById('signupPass2').value;
+            const msg = document.getElementById('signupMsg');
+            const signupBtn = document.getElementById('signupBtn');
+            
+            // Save original button text
+            const originalText = signupBtn.textContent;
+            
+            msg.textContent = '';
+            msg.classList.remove('success');
+            
+            if (!email || !password) { 
+                msg.textContent = 'Provide email and password'; 
+                return false; 
+            }
+            
+            if (password.length < 6) {
+                msg.textContent = 'Password must be at least 6 characters long';
+                return false;
+            }
+            
+            if (password !== password2) { 
+                msg.textContent = 'Passwords do not match'; 
+                return false; 
+            }
 
-      <p id="loginMsg" class="msg"></p>
-    </form>
-  </main>
+            try {
+                // Show loading state
+                signupBtn.innerHTML = '<span class="loader"></span> Signing up...';
+                signupBtn.disabled = true;
 
-  <!-- Sign up modal -->
-  <div id="signupModal" class="modal" aria-hidden="true">
-    <div class="modal-card">
-      <button class="close" onclick="closeSignup()">✕</button>
-      <h2>Create Teacher Account</h2>
-      <form id="signupForm" onsubmit="return handleSignup(event)">
-        <div class="input-group">
-          <label for="signupEmail">Email</label>
-          <input id="signupEmail" type="email" required>
-        </div>
-        <div class="input-group">
-          <label for="signupPass">Password</label>
-          <input id="signupPass" type="password" required>
-        </div>
-        <div class="input-group">
-          <label for="signupPass2">Confirm password</label>
-          <input id="signupPass2" type="password" required>
-        </div>
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                });
+                
+                if (error) {
+                    msg.textContent = error.message;
+                    signupBtn.textContent = originalText;
+                    signupBtn.disabled = false;
+                    return false;
+                }
+                
+                // Successfully signed up
+                msg.textContent = 'Account created successfully! Please check your email for verification.';
+                msg.classList.add('success');
+                
+                // Clear form
+                document.getElementById('signupForm').reset();
+                
+                // Reset button
+                signupBtn.textContent = originalText;
+                signupBtn.disabled = false;
+                
+                // Optionally automatically close modal after successful signup
+                setTimeout(() => {
+                    closeSignup();
+                }, 3000);
+                
+            } catch (err) {
+                msg.textContent = 'An error occurred during signup';
+                console.error('Signup error:', err);
+                signupBtn.textContent = originalText;
+                signupBtn.disabled = false;
+            }
+            
+            return false;
+        }
 
-        <button class="btn primary" type="submit" id="signupBtn">Sign up</button>
-        <p id="signupMsg" class="msg"></p>
-      </form>
-    </div>
-  </div>
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginUser').value.trim();
+            const password = document.getElementById('loginPass').value;
+            const msg = document.getElementById('loginMsg');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            // Save original button text
+            const originalText = loginBtn.textContent;
+            
+            msg.textContent = '';
+            msg.classList.remove('success');
 
-  <script>
-  // Initialize Supabase client with your provided URL and anon key
-  const SUPABASE_URL = 'https://mksawfwvcvmhekwpmlaw.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rc2F3Znd2Y3ZtaGVrd3BtbGF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNDYwOTIsImV4cCI6MjA3MzkyMjA5Mn0.xkiwSXeOyhW5-EtiQNUvbLRefwECPudcDJy8ZcxvQqs';
-  
-  // Create Supabase client
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  
-  function setToken(token) { 
-    localStorage.setItem('auth_token', token); 
-  }
-  
-  function getToken() { 
-    return localStorage.getItem('auth_token'); 
-  }
-  
-  function clearToken() { 
-    localStorage.removeItem('auth_token'); 
-  }
+            try {
+                // Show loading state
+                loginBtn.innerHTML = '<span class="loader"></span> Logging in...';
+                loginBtn.disabled = true;
+                
+                console.log('Attempting login with:', email);
+                
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
+                
+                if (error) {
+                    console.error('Login error:', error);
+                    msg.textContent = error.message + '. Please check your credentials and try again.';
+                    loginBtn.textContent = originalText;
+                    loginBtn.disabled = false;
+                    return false;
+                }
+                
+                console.log('Login successful:', data);
+                
+                // Store the access token
+                setToken(data.session.access_token);
+                
+                // Show success message
+                msg.textContent = 'Login successful! Redirecting...';
+                msg.classList.add('success');
+                
+                // Redirect to dashboard after a brief delay
+                setTimeout(() => {
+                    window.location.replace('dashboard.html');
+                }, 1500);
+                
+            } catch (err) {
+                msg.textContent = 'An error occurred during login';
+                console.error('Login exception:', err);
+                loginBtn.textContent = originalText;
+                loginBtn.disabled = false;
+            }
+            
+            return false;
+        }
 
-  async function handleSignup(e) {
-    e.preventDefault();
-    const email = document.getElementById('signupEmail').value.trim();
-    const password = document.getElementById('signupPass').value;
-    const password2 = document.getElementById('signupPass2').value;
-    const msg = document.getElementById('signupMsg');
-    const signupBtn = document.getElementById('signupBtn');
-    
-    // Save original button text
-    const originalText = signupBtn.textContent;
-    
-    msg.textContent = '';
-    msg.classList.remove('success');
-    
-    if (!email || !password) { 
-      msg.textContent = 'Provide email and password'; 
-      return false; 
-    }
-    
-    if (password !== password2) { 
-      msg.textContent = 'Passwords do not match'; 
-      return false; 
-    }
+        function openSignup() {
+            const modal = document.getElementById('signupModal');
+            modal.style.display = 'flex';
+            modal.setAttribute('aria-hidden', 'false');
+            document.getElementById('signupEmail').focus();
+        }
+        
+        function closeSignup() {
+            const modal = document.getElementById('signupModal');
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
+            document.getElementById('signupForm').reset();
+            const msg = document.getElementById('signupMsg');
+            msg.textContent = '';
+            msg.classList.remove('success');
+        }
 
-    try {
-      // Show loading state
-      signupBtn.innerHTML = '<span class="loader"></span> Signing up...';
-      signupBtn.disabled = true;
+        // Close modal on ESC or clicking outside
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeSignup();
+        });
+        
+        document.getElementById('signupModal').addEventListener('click', e => {
+            if (e.target.id === 'signupModal') closeSignup();
+        });
 
-      const { data, error } = await supabase.auth.signUp({
-        email: email,
-        password: password,
-      });
-      
-      if (error) {
-        msg.textContent = error.message;
-        signupBtn.textContent = originalText;
-        signupBtn.disabled = false;
-        return false;
-      }
-      
-      // Successfully signed up
-      msg.textContent = 'Account created successfully! Please check your email for verification.';
-      msg.classList.add('success');
-      
-      // Clear form
-      document.getElementById('signupForm').reset();
-      
-      // Reset button
-      signupBtn.textContent = originalText;
-      signupBtn.disabled = false;
-      
-      // Optionally automatically close modal after successful signup
-      setTimeout(() => {
-        closeSignup();
-      }, 3000);
-      
-    } catch (err) {
-      msg.textContent = 'An error occurred during signup';
-      console.error(err);
-      signupBtn.textContent = originalText;
-      signupBtn.disabled = false;
-    }
-    
-    return false;
-  }
-
-  async function handleLogin(e) {
-    e.preventDefault();
-    const email = document.getElementById('loginUser').value.trim();
-    const password = document.getElementById('loginPass').value;
-    const msg = document.getElementById('loginMsg');
-    const loginBtn = document.getElementById('loginBtn');
-    
-    // Save original button text
-    const originalText = loginBtn.textContent;
-    
-    msg.textContent = '';
-    msg.classList.remove('success');
-
-    try {
-      // Show loading state
-      loginBtn.innerHTML = '<span class="loader"></span> Logging in...';
-      loginBtn.disabled = true;
-      
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-      });
-      
-      if (error) {
-        msg.textContent = error.message;
-        loginBtn.textContent = originalText;
-        loginBtn.disabled = false;
-        return false;
-      }
-      
-      // Store the access token
-      setToken(data.session.access_token);
-      
-      // Show success message
-      msg.textContent = 'Login successful! Redirecting...';
-      msg.classList.add('success');
-      
-      // Redirect to dashboard after a brief delay
-      setTimeout(() => {
-        window.location.replace('dashboard.html');
-      }, 1500);
-      
-    } catch (err) {
-      msg.textContent = 'An error occurred during login';
-      console.error(err);
-      loginBtn.textContent = originalText;
-      loginBtn.disabled = false;
-    }
-    
-    return false;
-  }
-
-  function openSignup() {
-    const modal = document.getElementById('signupModal');
-    modal.style.display = 'flex';
-    modal.setAttribute('aria-hidden', 'false');
-    document.getElementById('signupEmail').focus();
-  }
-  
-  function closeSignup() {
-    const modal = document.getElementById('signupModal');
-    modal.style.display = 'none';
-    modal.setAttribute('aria-hidden', 'true');
-    document.getElementById('signupForm').reset();
-    document.getElementById('signupMsg').textContent = '';
-  }
-
-  // Close modal on ESC or clicking outside
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeSignup();
-  });
-  
-  document.getElementById('signupModal').addEventListener('click', e => {
-    if (e.target.id === 'signupModal') closeSignup();
-  });
-
-  // Check if user is already logged in
-  async function checkAuth() {
-    const { data } = await supabase.auth.getSession();
-    if (data.session) {
-      // User is already logged in, redirect to dashboard
-      window.location.replace('dashboard.html');
-    }
-  }
-  
-  // Check authentication status on page load
-  document.addEventListener('DOMContentLoaded', checkAuth);
-  </script>
+        // Check if user is already logged in
+        async function checkAuth() {
+            const { data } = await supabase.auth.getSession();
+            if (data.session) {
+                // User is already logged in, redirect to dashboard
+                window.location.replace('dashboard.html');
+            }
+        }
+        
+        // Check authentication status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            
+            // Add debug info
+            console.log('Supabase initialized with URL:', SUPABASE_URL);
+            console.log('Test credentials: teacher@example.com / Password123');
+        });
+    </script>
 </body>
 </html>
