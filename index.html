@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Teacher's Login Portal</title>
+  <!-- Add Supabase client library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * {
       margin: 0;
@@ -164,6 +166,11 @@
       font-weight: 500;
     }
 
+    /* Success message style */
+    .msg.success {
+      color: #2ecc71;
+    }
+
     /* Modal styles */
     .modal {
       position: fixed;
@@ -231,6 +238,20 @@
       color: #333;
       font-size: 24px;
     }
+
+    .loader {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -238,21 +259,21 @@
 
   <main class="card">
     <div class="brand">
-      <h1>Welcome</h1>
-      <p class="sub">Sign in to continue</p>
+      <h1>Teacher's Portal</h1>
+      <p class="sub">Sign in to access your dashboard</p>
     </div>
 
     <form id="loginForm" class="form" onsubmit="return handleLogin(event)">
       <div class="input-group">
-        <label for="loginUser">Username</label>
-        <input id="loginUser" name="username" autocomplete="username" required>
+        <label for="loginUser">Email</label>
+        <input id="loginUser" name="email" type="email" autocomplete="email" required>
       </div>
       <div class="input-group">
         <label for="loginPass">Password</label>
         <input id="loginPass" type="password" name="password" autocomplete="current-password" required>
       </div>
 
-      <button class="btn primary" type="submit">Log In</button>
+      <button class="btn primary" type="submit" id="loginBtn">Log In</button>
 
       <div class="help">
         <span>Don't have an account?</span>
@@ -267,11 +288,11 @@
   <div id="signupModal" class="modal" aria-hidden="true">
     <div class="modal-card">
       <button class="close" onclick="closeSignup()">✕</button>
-      <h2>Create account</h2>
+      <h2>Create Teacher Account</h2>
       <form id="signupForm" onsubmit="return handleSignup(event)">
         <div class="input-group">
-          <label for="signupUser">Username</label>
-          <input id="signupUser" required>
+          <label for="signupEmail">Email</label>
+          <input id="signupEmail" type="email" required>
         </div>
         <div class="input-group">
           <label for="signupPass">Password</label>
@@ -282,65 +303,148 @@
           <input id="signupPass2" type="password" required>
         </div>
 
-        <button class="btn primary" type="submit">Sign up</button>
+        <button class="btn primary" type="submit" id="signupBtn">Sign up</button>
         <p id="signupMsg" class="msg"></p>
       </form>
     </div>
   </div>
 
   <script>
-  const API_BASE = ''; // same origin (served by server.js)
-  function setToken(token) { localStorage.setItem('auth_token', token); }
-  function getToken() { return localStorage.getItem('auth_token'); }
-  function clearToken() { localStorage.removeItem('auth_token'); }
+  // Initialize Supabase client with your provided URL and anon key
+  const SUPABASE_URL = 'https://mksawfwvcvmhekwpmlaw.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rc2F3Znd2Y3ZtaGVrd3BtbGF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNDYwOTIsImV4cCI6MjA3MzkyMjA5Mn0.xkiwSXeOyhW5-EtiQNUvbLRefwECPudcDJy8ZcxvQqs';
+  
+  // Create Supabase client
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
+  function setToken(token) { 
+    localStorage.setItem('auth_token', token); 
+  }
+  
+  function getToken() { 
+    return localStorage.getItem('auth_token'); 
+  }
+  
+  function clearToken() { 
+    localStorage.removeItem('auth_token'); 
+  }
 
   async function handleSignup(e) {
     e.preventDefault();
-    const u = document.getElementById('signupUser').value.trim();
-    const p = document.getElementById('signupPass').value;
-    const p2 = document.getElementById('signupPass2').value;
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPass').value;
+    const password2 = document.getElementById('signupPass2').value;
     const msg = document.getElementById('signupMsg');
+    const signupBtn = document.getElementById('signupBtn');
+    
+    // Save original button text
+    const originalText = signupBtn.textContent;
+    
     msg.textContent = '';
-    if (!u || !p) { msg.textContent = 'Provide username and password'; return false; }
-    if (p !== p2) { msg.textContent = 'Passwords do not match'; return false; }
+    msg.classList.remove('success');
+    
+    if (!email || !password) { 
+      msg.textContent = 'Provide email and password'; 
+      return false; 
+    }
+    
+    if (password !== password2) { 
+      msg.textContent = 'Passwords do not match'; 
+      return false; 
+    }
 
     try {
-      const res = await fetch(`${API_BASE}/api/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: u, password: p })
+      // Show loading state
+      signupBtn.innerHTML = '<span class="loader"></span> Signing up...';
+      signupBtn.disabled = true;
+
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
       });
-      const data = await res.json();
-      if (!res.ok) { msg.textContent = data.error || 'Signup failed'; return false; }
-      setToken(data.token);
-      // Redirect to dashboard
-      window.location.replace('dashboard.html');
+      
+      if (error) {
+        msg.textContent = error.message;
+        signupBtn.textContent = originalText;
+        signupBtn.disabled = false;
+        return false;
+      }
+      
+      // Successfully signed up
+      msg.textContent = 'Account created successfully! Please check your email for verification.';
+      msg.classList.add('success');
+      
+      // Clear form
+      document.getElementById('signupForm').reset();
+      
+      // Reset button
+      signupBtn.textContent = originalText;
+      signupBtn.disabled = false;
+      
+      // Optionally automatically close modal after successful signup
+      setTimeout(() => {
+        closeSignup();
+      }, 3000);
+      
     } catch (err) {
-      msg.textContent = 'Network error';
+      msg.textContent = 'An error occurred during signup';
+      console.error(err);
+      signupBtn.textContent = originalText;
+      signupBtn.disabled = false;
     }
+    
     return false;
   }
 
   async function handleLogin(e) {
     e.preventDefault();
-    const u = document.getElementById('loginUser').value.trim();
-    const p = document.getElementById('loginPass').value;
+    const email = document.getElementById('loginUser').value.trim();
+    const password = document.getElementById('loginPass').value;
     const msg = document.getElementById('loginMsg');
+    const loginBtn = document.getElementById('loginBtn');
+    
+    // Save original button text
+    const originalText = loginBtn.textContent;
+    
     msg.textContent = '';
+    msg.classList.remove('success');
 
     try {
-      const res = await fetch(`${API_BASE}/api/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: u, password: p })
+      // Show loading state
+      loginBtn.innerHTML = '<span class="loader"></span> Logging in...';
+      loginBtn.disabled = true;
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
       });
-      const data = await res.json();
-      if (!res.ok) { msg.textContent = data.error || 'Login failed'; return false; }
-      setToken(data.token);
-      window.location.replace('dashboard.html');
+      
+      if (error) {
+        msg.textContent = error.message;
+        loginBtn.textContent = originalText;
+        loginBtn.disabled = false;
+        return false;
+      }
+      
+      // Store the access token
+      setToken(data.session.access_token);
+      
+      // Show success message
+      msg.textContent = 'Login successful! Redirecting...';
+      msg.classList.add('success');
+      
+      // Redirect to dashboard after a brief delay
+      setTimeout(() => {
+        window.location.replace('dashboard.html');
+      }, 1500);
+      
     } catch (err) {
-      msg.textContent = 'Network error';
+      msg.textContent = 'An error occurred during login';
+      console.error(err);
+      loginBtn.textContent = originalText;
+      loginBtn.disabled = false;
     }
+    
     return false;
   }
 
@@ -348,8 +452,9 @@
     const modal = document.getElementById('signupModal');
     modal.style.display = 'flex';
     modal.setAttribute('aria-hidden', 'false');
-    document.getElementById('signupUser').focus();
+    document.getElementById('signupEmail').focus();
   }
+  
   function closeSignup() {
     const modal = document.getElementById('signupModal');
     modal.style.display = 'none';
@@ -358,10 +463,26 @@
     document.getElementById('signupMsg').textContent = '';
   }
 
-  // Close modal on ESC
+  // Close modal on ESC or clicking outside
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeSignup();
   });
+  
+  document.getElementById('signupModal').addEventListener('click', e => {
+    if (e.target.id === 'signupModal') closeSignup();
+  });
+
+  // Check if user is already logged in
+  async function checkAuth() {
+    const { data } = await supabase.auth.getSession();
+    if (data.session) {
+      // User is already logged in, redirect to dashboard
+      window.location.replace('dashboard.html');
+    }
+  }
+  
+  // Check authentication status on page load
+  document.addEventListener('DOMContentLoaded', checkAuth);
   </script>
 </body>
 </html>
