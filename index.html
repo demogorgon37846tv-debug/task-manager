@@ -288,6 +288,20 @@
         .troubleshooting li {
             margin-bottom: 8px;
         }
+        
+        .config-info {
+            background: #f0f7ff;
+            border-left: 4px solid #6e8efb;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .config-info h3 {
+            color: #555;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -298,6 +312,16 @@
             <h1>Teacher's Portal</h1>
             <p class="sub">Sign in to access your dashboard</p>
             <p class="sub">Test with: teacher@example.com / Password123</p>
+        </div>
+        
+        <div class="config-info">
+            <h3>Configuration Required:</h3>
+            <p>To make this work, you need to:</p>
+            <ol>
+                <li>Go to your Supabase project → Authentication → Settings</li>
+                <li>Add your website URL to "Site URL" and "Redirect URLs"</li>
+                <li>Enable Email provider in Authentication → Providers</li>
+            </ol>
         </div>
 
         <form id="loginForm" class="form" onsubmit="return handleLogin(event)">
@@ -367,16 +391,22 @@
         // Create Supabase client
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
+        // Check if we're in a secure context (HTTPS or localhost)
+        function isSecureContext() {
+            return window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        }
+        
+        // Use sessionStorage instead of localStorage for better security
         function setToken(token) { 
-            localStorage.setItem('auth_token', token); 
+            sessionStorage.setItem('auth_token', token); 
         }
         
         function getToken() { 
-            return localStorage.getItem('auth_token'); 
+            return sessionStorage.getItem('auth_token'); 
         }
         
         function clearToken() { 
-            localStorage.removeItem('auth_token'); 
+            sessionStorage.removeItem('auth_token'); 
         }
 
         function togglePassword(inputId) {
@@ -422,6 +452,9 @@
                 const { data, error } = await supabase.auth.signUp({
                     email: email,
                     password: password,
+                    options: {
+                        emailRedirectTo: window.location.origin // Important for email confirmation
+                    }
                 });
                 
                 if (error) {
@@ -463,6 +496,11 @@
             const password = document.getElementById('loginPass').value;
             const msg = document.getElementById('loginMsg');
             const loginBtn = document.getElementById('loginBtn');
+            
+            // Check if we're in a secure context
+            if (!isSecureContext()) {
+                msg.textContent = 'Warning: For security, please use HTTPS or localhost.';
+            }
             
             // Save original button text
             const originalText = loginBtn.textContent;
@@ -556,6 +594,20 @@
             // Add debug info
             console.log('Supabase initialized with URL:', SUPABASE_URL);
             console.log('Test credentials: teacher@example.com / Password123');
+            console.log('Current origin:', window.location.origin);
+            
+            // Check if we need to handle a redirect from OAuth or similar
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            if (hashParams.has('access_token')) {
+                // We have a token in the URL (likely from OAuth redirect)
+                const accessToken = hashParams.get('access_token');
+                const refreshToken = hashParams.get('refresh_token');
+                
+                if (accessToken) {
+                    setToken(accessToken);
+                    window.location.replace('dashboard.html');
+                }
+            }
         });
     </script>
 </body>
