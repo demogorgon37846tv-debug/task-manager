@@ -302,6 +302,21 @@
             color: #555;
             margin-bottom: 10px;
         }
+        
+        .dashboard-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            color: #495057;
+            text-decoration: none;
+        }
+        
+        .dashboard-link:hover {
+            background: #e9ecef;
+        }
     </style>
 </head>
 <body>
@@ -353,6 +368,8 @@
                     <li>Make sure your Supabase project is properly configured</li>
                 </ul>
             </div>
+            
+            <a href="dashboard.html" class="dashboard-link">Go to Dashboard (for testing)</a>
         </form>
     </main>
 
@@ -539,7 +556,7 @@
                 
                 // Redirect to dashboard after a brief delay
                 setTimeout(() => {
-                    window.location.replace('dashboard.html');
+                    window.location.href = 'dashboard.html';
                 }, 1500);
                 
             } catch (err) {
@@ -580,10 +597,14 @@
 
         // Check if user is already logged in
         async function checkAuth() {
-            const { data } = await supabase.auth.getSession();
-            if (data.session) {
-                // User is already logged in, redirect to dashboard
-                window.location.replace('dashboard.html');
+            try {
+                const { data } = await supabase.auth.getSession();
+                if (data.session) {
+                    // User is already logged in, redirect to dashboard
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (error) {
+                console.error('Error checking authentication:', error);
             }
         }
         
@@ -605,7 +626,7 @@
                 
                 if (accessToken) {
                     setToken(accessToken);
-                    window.location.replace('dashboard.html');
+                    window.location.href = 'dashboard.html';
                 }
             }
         });
