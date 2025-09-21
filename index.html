@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Authentication</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --primary: #4361ee;
@@ -274,7 +274,7 @@
             }
             
             try {
-                const { user, error } = await supabase.auth.signIn({
+                const { data, error } = await supabase.auth.signInWithPassword({
                     email,
                     password
                 });
@@ -321,7 +321,7 @@
             }
             
             try {
-                const { user, error } = await supabase.auth.signUp({
+                const { data, error } = await supabase.auth.signUp({
                     email,
                     password
                 });
