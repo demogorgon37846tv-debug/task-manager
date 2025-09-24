@@ -1159,64 +1159,39 @@
             document.getElementById('logoutBtn').addEventListener('click', logout);
         }
 
-        // Load tasks from local storage (for demo purposes)
-        function loadTasks() {
-            // In a real app, you would fetch tasks from Supabase
-            // For now, we'll use sample data
-            const sampleTasks = [
-                {
-                    id: 1,
-                    title: 'Prepare Math lesson for Grade 5',
-                    subject: 'Math',
-                    description: 'Create lesson plan and materials for fractions',
-                    time: '09:00',
-                    dueDate: new Date().toISOString().split('T')[0],
-                    priority: 'high',
-                    category: 'teaching',
-                    completed: false,
-                    status: 'todo'
-                },
-                {
-                    id: 2,
-                    title: 'Grade English assignments',
-                    subject: 'English',
-                    description: 'Grade essays from Grade 6 students',
-                    time: '14:00',
-                    dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-                    priority: 'medium',
-                    category: 'grading',
-                    completed: false,
-                    status: 'inprogress'
-                },
-                {
-                    id: 3,
-                    title: 'Attend faculty meeting',
-                    subject: 'Meeting',
-                    description: 'Monthly faculty meeting in the conference room',
-                    time: '15:30',
-                    dueDate: new Date().toISOString().split('T')[0],
-                    priority: 'medium',
-                    category: 'meeting',
-                    completed: true,
-                    status: 'completed'
-                },
-                {
-                    id: 4,
-                    title: 'Prepare Science experiment',
-                    subject: 'Science',
-                    description: 'Set up materials for photosynthesis experiment',
-                    time: '11:00',
-                    dueDate: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0],
-                    priority: 'low',
-                    category: 'teaching',
-                    completed: false,
-                    status: 'todo'
-                }
-            ];
-            
-            tasks = sampleTasks;
-            renderTasks();
-            updateStats();
+        // Load tasks from Supabase for the current user
+        async function loadTasks() {
+            if (!currentUser) return;
+
+            try {
+                const { data, error } = await supabase
+                    .from('tasks')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                // Map database rows to UI-friendly task objects
+                tasks = (data || []).map(row => ({
+                    id: row.id,
+                    title: row.title,
+                    subject: row.subject,
+                    description: row.description,
+                    time: row.time,
+                    dueDate: row.due_date || row.dueDate || null,
+                    priority: row.priority || 'low',
+                    category: row.category || 'teaching',
+                    completed: !!row.completed,
+                    status: row.status || (row.completed ? 'completed' : 'todo')
+                }));
+
+                renderTasks();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading tasks from Supabase:', error);
+                showNotification('Failed to load tasks', 'error');
+            }
         }
 
         // Render tasks based on current view
@@ -1506,51 +1481,102 @@
             }
         }
 
-        // Handle task form submission
-        function handleTaskSubmit(e) {
+        // Handle task form submission — persist to Supabase
+        async function handleTaskSubmit(e) {
             e.preventDefault();
-            
-            const title = document.getElementById('task-title').value;
+
+            if (!currentUser) {
+                showNotification('You must be logged in to add tasks', 'error');
+                return;
+            }
+
+            const title = document.getElementById('task-title').value.trim();
             const subject = document.getElementById('task-subject').value;
-            const description = document.getElementById('task-description').value;
+            const description = document.getElementById('task-description').value.trim();
             const time = document.getElementById('task-time').value;
             const dueDate = document.getElementById('task-due-date').value;
             const priority = document.getElementById('task-priority').value;
             const category = document.getElementById('task-category').value;
-            
-            const newTask = {
-                id: Date.now(), // Simple ID generation for demo
+
+            if (!title) {
+                showNotification('Task title is required', 'error');
+                return;
+            }
+
+            const taskToInsert = {
                 title,
                 subject,
                 description,
-                time,
-                dueDate,
-                priority,
-                category,
+                time: time || null,
+                due_date: dueDate || null,
+                priority: priority || 'low',
+                category: category || 'teaching',
                 completed: false,
-                status: 'todo'
+                status: 'todo',
+                user_id: currentUser.id
             };
-            
-            tasks.push(newTask);
-            renderTasks();
-            updateStats();
-            
-            // Reset form
-            elements.taskForm.reset();
-            
-            showNotification('Task added successfully!', 'success');
+
+            try {
+                const { data, error } = await supabase
+                    .from('tasks')
+                    .insert([taskToInsert])
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                // Map inserted row to local model and update UI
+                const newTask = {
+                    id: data.id,
+                    title: data.title,
+                    subject: data.subject,
+                    description: data.description,
+                    time: data.time,
+                    dueDate: data.due_date || null,
+                    priority: data.priority,
+                    category: data.category,
+                    completed: !!data.completed,
+                    status: data.status || 'todo'
+                };
+
+                tasks.unshift(newTask);
+                renderTasks();
+                updateStats();
+
+                // Reset form
+                elements.taskForm.reset();
+
+                showNotification('Task added successfully!', 'success');
+            } catch (error) {
+                console.error('Error adding task:', error);
+                showNotification('Failed to add task', 'error');
+            }
         }
 
         // Toggle task completion
-        function toggleTaskCompletion(taskId) {
+        async function toggleTaskCompletion(taskId) {
             const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                task.completed = !task.completed;
-                task.status = task.completed ? 'completed' : 'todo';
+            if (!task) return;
+
+            const newCompleted = !task.completed;
+
+            try {
+                const { error } = await supabase
+                    .from('tasks')
+                    .update({ completed: newCompleted, status: newCompleted ? 'completed' : 'todo' })
+                    .eq('id', taskId);
+
+                if (error) throw error;
+
+                task.completed = newCompleted;
+                task.status = newCompleted ? 'completed' : 'todo';
                 renderTasks();
                 updateStats();
-                
+
                 showNotification(`Task marked as ${task.completed ? 'completed' : 'pending'}`, 'success');
+            } catch (error) {
+                console.error('Error updating task completion:', error);
+                showNotification('Failed to update task', 'error');
             }
         }
 
@@ -1561,12 +1587,24 @@
         }
 
         // Delete task
-        function deleteTask(taskId) {
-            if (confirm('Are you sure you want to delete this task?')) {
+        async function deleteTask(taskId) {
+            if (!confirm('Are you sure you want to delete this task?')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('tasks')
+                    .delete()
+                    .eq('id', taskId);
+
+                if (error) throw error;
+
                 tasks = tasks.filter(t => t.id !== taskId);
                 renderTasks();
                 updateStats();
                 showNotification('Task deleted successfully', 'success');
+            } catch (error) {
+                console.error('Error deleting task:', error);
+                showNotification('Failed to delete task', 'error');
             }
         }
 
@@ -1627,6 +1665,8 @@
                 elements.userGreet.textContent = `Hi, ${name}`;
             }
             
+            // Load tasks for this user once session validated
+            await loadTasks();
             return true;
         }
 
