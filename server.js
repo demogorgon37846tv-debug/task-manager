@@ -25,6 +25,7 @@ db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE,
+    full_name TEXT,
     password_hash TEXT
   )`);
 });
@@ -35,12 +36,12 @@ function generateToken(user) {
 
 // Signup
 app.post('/api/signup', async (req, res) => {
-  const { username, password } = req.body || {};
-  if (!username || !password) return res.status(400).json({ error: 'Missing username or password' });
+  const { username, password, full_name } = req.body || {};
+  if (!username || !password || !full_name) return res.status(400).json({ error: 'Missing username, password or full_name' });
 
   try {
     const hash = await bcrypt.hash(password, 10);
-    db.run('INSERT INTO users(username, password_hash) VALUES (?, ?)', [username, hash], function (err) {
+    db.run('INSERT INTO users(username, full_name, password_hash) VALUES (?, ?, ?)', [username, full_name, hash], function (err) {
       if (err) return res.status(409).json({ error: 'Username already taken' });
       const token = generateToken({ id: this.lastID, username });
       return res.json({ token });
