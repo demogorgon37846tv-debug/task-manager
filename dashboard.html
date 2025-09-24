@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DepEd Teacher's Dashboard</title>
+    <title>DepEd Teacher's Task Manager</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -27,6 +27,9 @@
             --error: #D32F2F;
             --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             --hover-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+            --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            --gradient-secondary: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+            --gradient-accent: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
         }
         
         * {
@@ -50,11 +53,12 @@
         }
         
         header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            background: var(--gradient-primary);
             color: white;
             padding: 15px 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             position: relative;
+            border-bottom: 5px solid var(--secondary);
         }
         
         .header-content {
@@ -70,27 +74,34 @@
         }
         
         .logo-icon {
-            font-size: 2rem;
+            font-size: 2.5rem;
             color: white;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 50%;
         }
         
         .logo h1 {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
         }
         
         .date-display {
             background-color: white;
             color: var(--primary);
-            padding: 8px 18px;
-            border-radius: 20px;
+            padding: 10px 20px;
+            border-radius: 30px;
             font-weight: bold;
             box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .main-content {
             display: grid;
-            grid-template-columns: 1fr 3fr;
+            grid-template-columns: 1fr 2fr;
             gap: 25px;
             margin-top: 25px;
         }
@@ -111,15 +122,28 @@
         
         .card {
             background-color: white;
-            border-radius: 12px;
+            border-radius: 16px;
             box-shadow: var(--card-shadow);
             padding: 25px;
             margin-bottom: 25px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient-primary);
         }
         
         .card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
             box-shadow: var(--hover-shadow);
         }
         
@@ -133,7 +157,7 @@
         }
         
         .card-title {
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             color: var(--primary);
             font-weight: 700;
             display: flex;
@@ -142,30 +166,33 @@
         }
         
         .card-title i {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
+            color: var(--accent);
         }
         
         .btn {
-            background: linear-gradient(to right, var(--primary), var(--primary-light));
+            background: var(--gradient-primary);
             color: white;
             border: none;
-            padding: 10px 18px;
-            border-radius: 6px;
+            padding: 12px 20px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.1);
         }
         
         .btn:hover {
-            background: linear-gradient(to right, var(--primary-dark), var(--primary));
-            transform: translateY(-2px);
+            background: var(--gradient-secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
         }
         
         .btn-sm {
-            padding: 6px 12px;
+            padding: 8px 14px;
             font-size: 0.85rem;
         }
         
@@ -178,15 +205,23 @@
         }
         
         .btn-danger {
-            background: linear-gradient(to right, var(--error), #F44336);
+            background: var(--gradient-secondary);
         }
         
         .btn-danger:hover {
             background: linear-gradient(to right, #C62828, var(--error));
         }
         
+        .btn-accent {
+            background: var(--gradient-accent);
+        }
+        
+        .btn-accent:hover {
+            background: linear-gradient(to right, #0D47A1, var(--accent));
+        }
+        
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 20px;
             position: relative;
         }
         
@@ -202,46 +237,53 @@
         
         .form-control {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border: 1px solid var(--medium-gray);
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 1rem;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background: #fafafa;
         }
         
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+            background: white;
         }
         
         .priority-high {
-            border-left: 5px solid var(--error);
+            border-left: 6px solid var(--error);
+            background: linear-gradient(to right, #FFEBEE, white);
         }
         
         .priority-medium {
-            border-left: 5px solid var(--warning);
+            border-left: 6px solid var(--warning);
+            background: linear-gradient(to right, #FFF3E0, white);
         }
         
         .priority-low {
-            border-left: 5px solid var(--success);
+            border-left: 6px solid var(--success);
+            background: linear-gradient(to right, #E8F5E9, white);
         }
         
         .task-item {
-            padding: 15px;
-            margin-bottom: 12px;
-            background-color: var(--light-gray);
-            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 15px;
+            background-color: white;
+            border-radius: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             transition: all 0.3s ease;
             cursor: grab;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
         }
         
         .task-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .task-info {
@@ -249,15 +291,15 @@
         }
         
         .task-info h3 {
-            font-size: 1.05rem;
-            margin-bottom: 6px;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
         
         .task-info p {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: var(--text-light);
             margin-bottom: 5px;
         }
@@ -274,6 +316,9 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            background: rgba(0,0,0,0.05);
+            padding: 3px 8px;
+            border-radius: 12px;
         }
         
         .task-actions {
@@ -290,6 +335,7 @@
         
         .completed {
             background-color: #f8fff8;
+            opacity: 0.8;
         }
         
         .completed .task-info h3 {
@@ -307,36 +353,45 @@
         }
         
         .schedule-item {
-            padding: 12px;
+            padding: 15px;
             border-bottom: 1px solid #eee;
             margin-bottom: 12px;
-            border-radius: 6px;
-            background-color: #E8F5E9;
-            transition: background-color 0.3s ease;
+            border-radius: 8px;
+            background: linear-gradient(to right, #E8F5E9, #F1F8E9);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary);
         }
         
         .schedule-item:hover {
-            background-color: #C8E6C9;
+            background: linear-gradient(to right, #C8E6C9, #DCEDC8);
+            transform: translateX(5px);
         }
         
         .stat-box {
             text-align: center;
-            padding: 20px;
+            padding: 25px;
             background: linear-gradient(135deg, #E8F5E9 0%, #ffffff 100%);
-            border-radius: 10px;
-            margin-bottom: 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
             border: 1px solid var(--medium-gray);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-box:hover {
+            transform: scale(1.03);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .stat-number {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             font-weight: bold;
             color: var(--primary);
             margin: 10px 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
         
         .stat-label {
-            font-size: 0.95rem;
+            font-size: 1rem;
             color: var(--text-light);
             font-weight: 600;
         }
@@ -364,6 +419,10 @@
             color: var(--primary);
             font-weight: bold;
             font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         
         .filter-options {
@@ -373,28 +432,30 @@
         }
         
         .filter-select {
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 10px 14px;
+            border-radius: 8px;
             border: 1px solid var(--medium-gray);
             background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         
         .empty-state {
             text-align: center;
-            padding: 30px;
+            padding: 40px;
             color: var(--text-light);
         }
         
         .empty-state i {
-            font-size: 3rem;
+            font-size: 4rem;
             margin-bottom: 15px;
             color: var(--medium-gray);
+            opacity: 0.5;
         }
         
         .priority-badge {
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 0.75rem;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
             font-weight: bold;
         }
         
@@ -417,14 +478,17 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 15px 20px;
-            border-radius: 8px;
+            padding: 15px 25px;
+            border-radius: 10px;
             color: white;
             font-weight: 500;
             z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateX(150%);
+            transition: transform 0.4s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
         .notification.show {
@@ -432,11 +496,11 @@
         }
         
         .notification.success {
-            background: linear-gradient(to right, var(--success), #4CAF50);
+            background: var(--gradient-primary);
         }
         
         .notification.error {
-            background: linear-gradient(to right, var(--error), #F44336);
+            background: var(--gradient-secondary);
         }
         
         .custom-subject-container {
@@ -488,132 +552,237 @@
             margin-top: 10px;
         }
         
-        /* Navigation Tabs */
-        .nav-tabs {
+        /* Kanban Board Styles */
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .kanban-column {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .kanban-column-header {
             display: flex;
-            border-bottom: 2px solid var(--primary);
-            margin-bottom: 20px;
-        }
-        
-        .nav-tab {
-            padding: 12px 20px;
-            cursor: pointer;
-            font-weight: 600;
-            color: var(--text-light);
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-        }
-        
-        .nav-tab.active {
-            color: var(--primary);
-            border-bottom: 3px solid var(--primary);
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        /* Table Styles */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        
-        .data-table th, .data-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid var(--medium-gray);
-        }
-        
-        .data-table th {
-            background-color: var(--light-gray);
-            font-weight: 600;
-            color: var(--primary);
-        }
-        
-        .data-table tr:hover {
-            background-color: #f9f9f9;
-        }
-        
-        .action-btn {
-            padding: 6px 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            margin-right: 5px;
-        }
-        
-        .btn-edit {
-            background-color: var(--accent-light);
-            color: white;
-        }
-        
-        .btn-delete {
-            background-color: var(--error);
-            color: white;
-        }
-        
-        .btn-view {
-            background-color: var(--primary-light);
-            color: white;
-        }
-        
-        /* Form Styles for Supabase Tables */
-        .form-row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .form-col {
-            flex: 1;
-        }
-        
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--medium-gray);
         }
         
-        .modal-content {
-            background-color: white;
-            padding: 25px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
+        .kanban-column-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
         }
         
-        .modal-header {
+        .kanban-task-count {
+            background: var(--primary);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .kanban-tasks {
+            min-height: 200px;
+        }
+        
+        /* Calendar View */
+        .calendar-view {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            padding-bottom: 15px;
+        }
+        
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: var(--medium-gray);
+            border: 1px solid var(--medium-gray);
+        }
+        
+        .calendar-day {
+            background: white;
+            padding: 10px;
+            min-height: 100px;
+        }
+        
+        .calendar-day-header {
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+            padding-bottom: 5px;
             border-bottom: 1px solid var(--medium-gray);
         }
         
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
+        .calendar-day.today {
+            background: #E8F5E9;
+        }
+        
+        .calendar-task {
+            font-size: 0.8rem;
+            padding: 3px;
+            margin-bottom: 3px;
+            border-radius: 3px;
+            background: var(--primary-light);
+            color: white;
+        }
+        
+        /* View Toggle */
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .view-option {
+            padding: 10px 20px;
+            background: white;
+            border: 1px solid var(--medium-gray);
+            border-radius: 8px;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .view-option.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            height: 8px;
+            background: var(--medium-gray);
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        /* Task Categories */
+        .category-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .category-tag {
+            padding: 5px 10px;
+            background: var(--light-gray);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .quick-action {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .quick-action:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: var(--gradient-primary);
+            color: white;
+        }
+        
+        .quick-action i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        /* Enhanced task form */
+        .task-form-container {
+            position: sticky;
+            top: 20px;
+        }
+        
+        /* Task search */
+        .task-search {
+            margin-bottom: 20px;
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
             color: var(--text-light);
+        }
+        
+        .search-box input {
+            padding-left: 45px;
+        }
+
+        /* Floating Add Task Button */
+        .floating-add-btn {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 2000;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .floating-add-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
         }
     </style>
 </head>
@@ -624,10 +793,11 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <i class="fas fa-chalkboard-teacher logo-icon"></i>
-                    <h1>DepEd Teacher's Dashboard</h1>
+                    <i class="fas fa-tasks logo-icon"></i>
+                    <h1>DepEd Teacher's Task Manager</h1>
                 </div>
                 <div class="date-display">
+                    <i class="fas fa-calendar-alt"></i>
                     <span id="current-date"></span>
                 </div>
 
@@ -644,299 +814,235 @@
             <i class="fas fa-landmark"></i> Department of Education - Republic of the Philippines
         </div>
         
-        <!-- Navigation Tabs -->
-        <div class="nav-tabs">
-            <div class="nav-tab active" data-tab="dashboard">Dashboard</div>
-            <div class="nav-tab" data-tab="classes">Classes</div>
-            <div class="nav-tab" data-tab="students">Students</div>
-            <div class="nav-tab" data-tab="assignments">Assignments</div>
-            <div class="nav-tab" data-tab="grades">Grades</div>
-            <div class="nav-tab" data-tab="attendance">Attendance</div>
+        <!-- View Toggle -->
+        <div class="view-toggle">
+            <div class="view-option active" data-view="list">
+                <i class="fas fa-list"></i> List View
+            </div>
+            <div class="view-option" data-view="kanban">
+                <i class="fas fa-th-large"></i> Kanban Board
+            </div>
+            <div class="view-option" data-view="calendar">
+                <i class="fas fa-calendar"></i> Calendar
+            </div>
         </div>
         
-        <!-- Dashboard Tab -->
-        <div class="tab-content active" id="dashboard-tab">
-            <div class="main-content">
-                <div class="left-column">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title"><i class="fas fa-plus-circle"></i> Add New Task</h2>
-                        </div>
-                        <form id="task-form">
-                            <div class="form-group">
-                                <label for="task-title"><i class="fas fa-heading"></i> Task Title</label>
-                                <input type="text" id="task-title" class="form-control" placeholder="Enter task title" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="task-subject"><i class="fas fa-book"></i> Subject/Activity</label>
-                                <select id="task-subject" class="form-control">
-                                    <option value="">Select Subject/Activity</option>
-                                    <option value="English">English</option>
-                                    <option value="Math">Mathematics</option>
-                                    <option value="Science">Science</option>
-                                    <option value="Filipino">Filipino</option>
-                                    <option value="Araling Panlipunan">Araling Panlipunan</option>
-                                    <option value="MAPEH">MAPEH</option>
-                                    <option value="TLE">TLE</option>
-                                    <option value="ESP">ESP</option>
-                                    <option value="other">Other (specify)</option>
-                                </select>
-                            </div>
-                            <div class="form-group" id="custom-subject-container" style="display: none;">
-                                <div class="custom-subject-container">
-                                    <input type="text" id="custom-subject" class="form-control" placeholder="Enter custom subject/activity">
-                                    <button type="button" id="add-custom-subject" class="btn btn-sm">Add</button>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="task-description"><i class="fas fa-align-left"></i> Description</label>
-                                <textarea id="task-description" class="form-control" placeholder="Task details" rows="3"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="task-time"><i class="fas fa-clock"></i> Time</label>
-                                <input type="time" id="task-time" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="task-due-date"><i class="fas fa-calendar-day"></i> Due Date</label>
-                                <input type="date" id="task-due-date" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="task-priority"><i class="fas fa-exclamation-circle"></i> Priority</label>
-                                <select id="task-priority" class="form-control">
-                                    <option value="low">Low Priority</option>
-                                    <option value="medium">Medium Priority</option>
-                                    <option value="high">High Priority</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn"><i class="fas fa-plus"></i> Add Task</button>
-                        </form>
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <div class="quick-action" data-action="add-task">
+                <i class="fas fa-plus-circle"></i>
+                <div>Add Task</div>
+            </div>
+            <div class="quick-action" data-action="today-tasks">
+                <i class="fas fa-calendar-day"></i>
+                <div>Today's Tasks</div>
+            </div>
+            <div class="quick-action" data-action="high-priority">
+                <i class="fas fa-exclamation-circle"></i>
+                <div>High Priority</div>
+            </div>
+            <div class="quick-action" data-action="completed">
+                <i class="fas fa-check-circle"></i>
+                <div>Completed</div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="left-column">
+                <div class="card task-form-container">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-plus-circle"></i> Add New Task</h2>
                     </div>
-                    
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title"><i class="fas fa-chart-pie"></i> Today's Stats</h2>
+                    <form id="task-form">
+                        <div class="form-group">
+                            <label for="task-title"><i class="fas fa-heading"></i> Task Title</label>
+                            <input type="text" id="task-title" class="form-control" placeholder="Enter task title" required>
                         </div>
-                        <div class="stat-box">
-                            <div class="stat-number" id="total-classes">0</div>
-                            <div class="stat-label">Total Classes</div>
+                        <div class="form-group">
+                            <label for="task-subject"><i class="fas fa-book"></i> Subject/Activity</label>
+                            <select id="task-subject" class="form-control">
+                                <option value="">Select Subject/Activity</option>
+                                <option value="English">English</option>
+                                <option value="Math">Mathematics</option>
+                                <option value="Science">Science</option>
+                                <option value="Filipino">Filipino</option>
+                                <option value="Araling Panlipunan">Araling Panlipunan</option>
+                                <option value="MAPEH">MAPEH</option>
+                                <option value="TLE">TLE</option>
+                                <option value="ESP">ESP</option>
+                                <option value="other">Other (specify)</option>
+                            </select>
                         </div>
-                        <div class="stat-box">
-                            <div class="stat-number" id="total-students">0</div>
-                            <div class="stat-label">Total Students</div>
+                        <div class="form-group" id="custom-subject-container" style="display: none;">
+                            <div class="custom-subject-container">
+                                <input type="text" id="custom-subject" class="form-control" placeholder="Enter custom subject/activity">
+                                <button type="button" id="add-custom-subject" class="btn btn-sm">Add</button>
+                            </div>
                         </div>
-                        <div class="stat-box">
-                            <div class="stat-number" id="pending-assignments">0</div>
-                            <div class="stat-label">Pending Assignments</div>
+                        <div class="form-group">
+                            <label for="task-description"><i class="fas fa-align-left"></i> Description</label>
+                            <textarea id="task-description" class="form-control" placeholder="Task details" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-time"><i class="fas fa-clock"></i> Time</label>
+                            <input type="time" id="task-time" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="task-due-date"><i class="fas fa-calendar-day"></i> Due Date</label>
+                            <input type="date" id="task-due-date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="task-priority"><i class="fas fa-exclamation-circle"></i> Priority</label>
+                            <select id="task-priority" class="form-control">
+                                <option value="low">Low Priority</option>
+                                <option value="medium">Medium Priority</option>
+                                <option value="high">High Priority</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-category"><i class="fas fa-tag"></i> Category</label>
+                            <select id="task-category" class="form-control">
+                                <option value="teaching">Teaching</option>
+                                <option value="planning">Lesson Planning</option>
+                                <option value="grading">Grading</option>
+                                <option value="meeting">Meeting</option>
+                                <option value="event">School Event</option>
+                                <option value="personal">Personal</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn"><i class="fas fa-plus"></i> Add Task</button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-chart-pie"></i> Task Statistics</h2>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="total-tasks">0</div>
+                        <div class="stat-label">Total Tasks</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="completed-tasks">0</div>
+                        <div class="stat-label">Completed Tasks</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="pending-tasks">0</div>
+                        <div class="stat-label">Pending Tasks</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="completion-progress" style="width: 0%"></div>
+                    </div>
+                    <div style="text-align: center; font-size: 0.9rem; color: var(--text-light);">
+                        Completion Progress
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-tags"></i> Task Categories</h2>
+                    </div>
+                    <div class="category-tags" id="category-tags">
+                        <!-- Category tags will be populated here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="middle-column">
+                <!-- Task Search -->
+                <div class="card task-search">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="task-search" class="form-control" placeholder="Search tasks...">
+                    </div>
+                </div>
+                
+                <!-- List View -->
+                <div class="card task-list-view">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-tasks"></i> Today's Tasks</h2>
+                        <div class="filter-options">
+                            <select id="filter-priority" class="filter-select">
+                                <option value="all">All Priorities</option>
+                                <option value="high">High Priority</option>
+                                <option value="medium">Medium Priority</option>
+                                <option value="low">Low Priority</option>
+                            </select>
+                            <select id="filter-status" class="filter-select">
+                                <option value="all">All Status</option>
+                                <option value="completed">Completed</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                            <select id="filter-category" class="filter-select">
+                                <option value="all">All Categories</option>
+                                <option value="teaching">Teaching</option>
+                                <option value="planning">Lesson Planning</option>
+                                <option value="grading">Grading</option>
+                                <option value="meeting">Meeting</option>
+                                <option value="event">School Event</option>
+                                <option value="personal">Personal</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="tasks-container">
+                        <!-- Tasks will be added here dynamically -->
+                    </div>
+                </div>
+                
+                <!-- Kanban Board View -->
+                <div class="kanban-board" style="display: none;">
+                    <div class="kanban-column">
+                        <div class="kanban-column-header">
+                            <div class="kanban-column-title">To Do</div>
+                            <div class="kanban-task-count" id="todo-count">0</div>
+                        </div>
+                        <div class="kanban-tasks" id="kanban-todo">
+                            <!-- To Do tasks will be added here -->
+                        </div>
+                    </div>
+                    <div class="kanban-column">
+                        <div class="kanban-column-header">
+                            <div class="kanban-column-title">In Progress</div>
+                            <div class="kanban-task-count" id="inprogress-count">0</div>
+                        </div>
+                        <div class="kanban-tasks" id="kanban-inprogress">
+                            <!-- In Progress tasks will be added here -->
+                        </div>
+                    </div>
+                    <div class="kanban-column">
+                        <div class="kanban-column-header">
+                            <div class="kanban-column-title">Completed</div>
+                            <div class="kanban-task-count" id="completed-count">0</div>
+                        </div>
+                        <div class="kanban-tasks" id="kanban-completed">
+                            <!-- Completed tasks will be added here -->
                         </div>
                     </div>
                 </div>
                 
-                <div class="middle-column">
+                <!-- Calendar View -->
+                <div class="calendar-view">
                     <div class="card">
                         <div class="card-header">
-                            <h2 class="card-title"><i class="fas fa-tasks"></i> Today's Tasks</h2>
-                            <div class="filter-options">
-                                <select id="filter-priority" class="filter-select">
-                                    <option value="all">All Priorities</option>
-                                    <option value="high">High Priority</option>
-                                    <option value="medium">Medium Priority</option>
-                                    <option value="low">Low Priority</option>
-                                </select>
-                                <select id="filter-status" class="filter-select">
-                                    <option value="all">All Status</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="pending">Pending</option>
-                                </select>
+                            <h2 class="card-title"><i class="fas fa-calendar-alt"></i> Task Calendar</h2>
+                            <div class="calendar-nav">
+                                <button id="prev-month" class="btn btn-sm"><i class="fas fa-chevron-left"></i></button>
+                                <button id="next-month" class="btn btn-sm"><i class="fas fa-chevron-right"></i></button>
                             </div>
                         </div>
-                        <div id="tasks-container">
-                            <!-- Tasks will be added here dynamically -->
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title"><i class="fas fa-calendar-alt"></i> Upcoming Deadlines</h2>
-                        </div>
-                        <div id="deadlines-container">
-                            <!-- Deadlines will be added here dynamically -->
+                        <div id="calendar-container">
+                            <!-- Calendar will be generated here -->
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Classes Tab -->
-        <div class="tab-content" id="classes-tab">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title"><i class="fas fa-users"></i> My Classes</h2>
-                    <button class="btn" id="add-class-btn"><i class="fas fa-plus"></i> Add New Class</button>
-                </div>
-                <div id="classes-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Class Name</th>
-                                <th>Subject</th>
-                                <th>Academic Year</th>
-                                <th>Student Count</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="classes-table-body">
-                            <!-- Classes will be populated here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- Add/Edit Class Modal -->
-            <div id="class-modal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2 id="class-modal-title">Add New Class</h2>
-                        <button class="modal-close">&times;</button>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-calendar-alt"></i> Upcoming Deadlines</h2>
                     </div>
-                    <form id="class-form">
-                        <input type="hidden" id="class-id">
-                        <div class="form-row">
-                            <div class="form-col">
-                                <div class="form-group">
-                                    <label for="class-name">Class Name</label>
-                                    <input type="text" id="class-name" class="form-control" required>
-                                </div>
-                            </div>
-                            <div class="form-col">
-                                <div class="form-group">
-                                    <label for="class-subject">Subject</label>
-                                    <input type="text" id="class-subject" class="form-control" required>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-col">
-                                <div class="form-group">
-                                    <label for="class-academic-year">Academic Year</label>
-                                    <input type="text" id="class-academic-year" class="form-control" required>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn">Save Class</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Students Tab -->
-        <div class="tab-content" id="students-tab">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title"><i class="fas fa-user-graduate"></i> Student Management</h2>
-                    <div>
-                        <select id="class-filter" class="filter-select">
-                            <option value="">All Classes</option>
-                            <!-- Class options will be populated here -->
-                        </select>
-                        <button class="btn" id="add-student-btn"><i class="fas fa-plus"></i> Add Student</button>
+                    <div id="deadlines-container">
+                        <!-- Deadlines will be added here dynamically -->
                     </div>
-                </div>
-                <div id="students-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Student ID</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Email</th>
-                                <th>Class</th>
-                                <th>Enrollment Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="students-table-body">
-                            <!-- Students will be populated here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- Add/Edit Student Modal -->
-            <div id="student-modal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2 id="student-modal-title">Add New Student</h2>
-                        <button class="modal-close">&times;</button>
-                    </div>
-                    <form id="student-form">
-                        <input type="hidden" id="student-id">
-                        <div class="form-row">
-                            <div class="form-col">
-                                <div class="form-group">
-                                    <label for="student-first-name">First Name</label>
-                                    <input type="text" id="student-first-name" class="form-control" required>
-                                </div>
-                            </div>
-                            <div class="form-col">
-                                <div class="form-group">
-                                    <label for="student-last-name">Last Name</label>
-                                    <input type="text" id="student-last-name" class="form-control" required>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-col">
-                                <div class="form-group">
-                                    <label for="student-email">Email (optional)</label>
-                                    <input type="email" id="student-email" class="form-control">
-                                </div>
-                            </div>
-                            <div class="form-col">
-                                <div class="form-group">
-                                    <label for="student-class">Class</label>
-                                    <select id="student-class" class="form-control" required>
-                                        <!-- Class options will be populated here -->
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn">Save Student</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Other tabs (Assignments, Grades, Attendance) would be implemented similarly -->
-        <div class="tab-content" id="assignments-tab">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title"><i class="fas fa-tasks"></i> Assignment Management</h2>
-                    <button class="btn" id="add-assignment-btn"><i class="fas fa-plus"></i> Add Assignment</button>
-                </div>
-                <div id="assignments-container">
-                    <p>Assignment management interface would be implemented here.</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="tab-content" id="grades-tab">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title"><i class="fas fa-chart-line"></i> Grade Management</h2>
-                </div>
-                <div id="grades-container">
-                    <p>Grade management interface would be implemented here.</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="tab-content" id="attendance-tab">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title"><i class="fas fa-calendar-check"></i> Attendance Management</h2>
-                </div>
-                <div id="attendance-container">
-                    <p>Attendance management interface would be implemented here.</p>
                 </div>
             </div>
         </div>
@@ -944,15 +1050,20 @@
 
     <footer>
         <div class="container">
-            <p>DepEd Teacher's Dashboard © 2023 | Department of Education - Philippines</p>
-            <p>This tool is designed to help teachers manage their classes, students, and academic activities.</p>
+            <p>DepEd Teacher's Task Manager © 2023 | Department of Education - Philippines</p>
+            <p>This tool is designed to help teachers manage their tasks and academic activities.</p>
         </div>
     </footer>
 
+    <!-- Floating Add Task Button (always visible) -->
+    <button id="floatingAddBtn" class="floating-add-btn" title="Add Task" aria-label="Add Task">
+        <i class="fas fa-plus"></i>
+    </button>
+
     <script>
-        // Initialize Supabase client
-        const SUPABASE_URL = 'https://mksawfwvcvmhekwpmlaw.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rc2F3Znd2Y3ZtaGVrd3BtbGF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNDYwOTIsImV4cCI6MjA3MzkyMjA5Mn0.xkiwSXeOyhW5-EtiQNUvbLRefwECPudcDJy8ZcxvQqs';
+    // Initialize Supabase client (use same project as index.html to avoid session mismatch)
+    const SUPABASE_URL = 'https://tkufqhgurweuufqnwdik.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrdWZxaGd1cndldXVmcW53ZGlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3MTU5ODUsImV4cCI6MjA3NDI5MTk4NX0.qoUZWx1Q-tpUWOFixPs5J5qRdkqrhCwbHMWpLW44b6c';
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
@@ -962,50 +1073,38 @@
             currentDate: document.getElementById('current-date'),
             userGreet: document.getElementById('user-greet'),
             logoutBtn: document.getElementById('logout-btn'),
-            navTabs: document.querySelectorAll('.nav-tab'),
-            tabContents: document.querySelectorAll('.tab-content'),
-            classesTableBody: document.getElementById('classes-table-body'),
-            studentsTableBody: document.getElementById('students-table-body'),
-            classFilter: document.getElementById('class-filter'),
-            studentClass: document.getElementById('student-class'),
-            classModal: document.getElementById('class-modal'),
-            studentModal: document.getElementById('student-modal'),
-            classForm: document.getElementById('class-form'),
-            studentForm: document.getElementById('student-form'),
-            classModalTitle: document.getElementById('class-modal-title'),
-            studentModalTitle: document.getElementById('student-modal-title'),
-            classId: document.getElementById('class-id'),
-            studentId: document.getElementById('student-id'),
-            className: document.getElementById('class-name'),
-            classSubject: document.getElementById('class-subject'),
-            classAcademicYear: document.getElementById('class-academic-year'),
-            studentFirstName: document.getElementById('student-first-name'),
-            studentLastName: document.getElementById('student-last-name'),
-            studentEmail: document.getElementById('student-email'),
-            addClassBtn: document.getElementById('add-class-btn'),
-            addStudentBtn: document.getElementById('add-student-btn'),
-            modalCloseButtons: document.querySelectorAll('.modal-close'),
-            totalClasses: document.getElementById('total-classes'),
-            totalStudents: document.getElementById('total-students'),
-            pendingAssignments: document.getElementById('pending-assignments')
+            totalTasks: document.getElementById('total-tasks'),
+            completedTasks: document.getElementById('completed-tasks'),
+            pendingTasks: document.getElementById('pending-tasks'),
+            completionProgress: document.getElementById('completion-progress'),
+            categoryTags: document.getElementById('category-tags'),
+            tasksContainer: document.getElementById('tasks-container'),
+            deadlinesContainer: document.getElementById('deadlines-container'),
+            taskForm: document.getElementById('task-form'),
+            taskSearch: document.getElementById('task-search'),
+            filterPriority: document.getElementById('filter-priority'),
+            filterStatus: document.getElementById('filter-status'),
+            filterCategory: document.getElementById('filter-category'),
+            viewOptions: document.querySelectorAll('.view-option'),
+            kanbanBoard: document.querySelector('.kanban-board'),
+            calendarView: document.querySelector('.calendar-view'),
+            taskListView: document.querySelector('.task-list-view'),
+            quickActions: document.querySelectorAll('.quick-action')
         };
 
         // State
         let currentUser = null;
-        let classes = [];
-        let students = [];
-        let editingClassId = null;
-        let editingStudentId = null;
+        let tasks = [];
+        let currentView = 'list';
 
         // Initialize the application
         async function init() {
             await validateSession();
             displayCurrentDate();
             setupEventListeners();
-            loadClasses();
-            loadStudents();
+            loadTasks();
             updateStats();
-            showNotification('Welcome to your DepEd Dashboard!', 'success');
+            showNotification('Welcome to your DepEd Task Manager!', 'success');
         }
 
         // Display current date
@@ -1017,472 +1116,485 @@
 
         // Set up event listeners
         function setupEventListeners() {
-            // Navigation tabs
-            elements.navTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const tabId = tab.getAttribute('data-tab');
-                    switchTab(tabId);
+            // Task form submission
+            elements.taskForm.addEventListener('submit', handleTaskSubmit);
+            
+            // Task search
+            elements.taskSearch.addEventListener('input', filterTasks);
+            
+            // Filter changes
+            elements.filterPriority.addEventListener('change', filterTasks);
+            elements.filterStatus.addEventListener('change', filterTasks);
+            elements.filterCategory.addEventListener('change', filterTasks);
+            
+            // View options
+            elements.viewOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    const view = option.getAttribute('data-view');
+                    switchView(view);
+                });
+            });
+            
+            // Quick actions
+            elements.quickActions.forEach(action => {
+                action.addEventListener('click', () => {
+                    const actionType = action.getAttribute('data-action');
+                    handleQuickAction(actionType);
                 });
             });
 
-            // Modal close buttons
-            elements.modalCloseButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    closeModals();
+            // Floating Add button - scroll to and focus the task title
+            const floatingAdd = document.getElementById('floatingAddBtn');
+            if (floatingAdd) {
+                floatingAdd.addEventListener('click', () => {
+                    const titleInput = document.getElementById('task-title');
+                    if (titleInput) {
+                        titleInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        titleInput.focus();
+                    }
                 });
-            });
-
-            // Add class button
-            elements.addClassBtn.addEventListener('click', () => {
-                openClassModal();
-            });
-
-            // Add student button
-            elements.addStudentBtn.addEventListener('click', () => {
-                openStudentModal();
-            });
-
-            // Class form submission
-            elements.classForm.addEventListener('submit', handleClassSubmit);
-
-            // Student form submission
-            elements.studentForm.addEventListener('submit', handleStudentSubmit);
-
-            // Class filter change
-            elements.classFilter.addEventListener('change', filterStudentsByClass);
-
+            }
+            
             // Logout button
             document.getElementById('logoutBtn').addEventListener('click', logout);
         }
 
-        // Switch between tabs
-        function switchTab(tabId) {
-            // Update active tab
-            elements.navTabs.forEach(tab => {
-                if (tab.getAttribute('data-tab') === tabId) {
-                    tab.classList.add('active');
-                } else {
-                    tab.classList.remove('active');
+        // Load tasks from local storage (for demo purposes)
+        function loadTasks() {
+            // In a real app, you would fetch tasks from Supabase
+            // For now, we'll use sample data
+            const sampleTasks = [
+                {
+                    id: 1,
+                    title: 'Prepare Math lesson for Grade 5',
+                    subject: 'Math',
+                    description: 'Create lesson plan and materials for fractions',
+                    time: '09:00',
+                    dueDate: new Date().toISOString().split('T')[0],
+                    priority: 'high',
+                    category: 'teaching',
+                    completed: false,
+                    status: 'todo'
+                },
+                {
+                    id: 2,
+                    title: 'Grade English assignments',
+                    subject: 'English',
+                    description: 'Grade essays from Grade 6 students',
+                    time: '14:00',
+                    dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+                    priority: 'medium',
+                    category: 'grading',
+                    completed: false,
+                    status: 'inprogress'
+                },
+                {
+                    id: 3,
+                    title: 'Attend faculty meeting',
+                    subject: 'Meeting',
+                    description: 'Monthly faculty meeting in the conference room',
+                    time: '15:30',
+                    dueDate: new Date().toISOString().split('T')[0],
+                    priority: 'medium',
+                    category: 'meeting',
+                    completed: true,
+                    status: 'completed'
+                },
+                {
+                    id: 4,
+                    title: 'Prepare Science experiment',
+                    subject: 'Science',
+                    description: 'Set up materials for photosynthesis experiment',
+                    time: '11:00',
+                    dueDate: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0],
+                    priority: 'low',
+                    category: 'teaching',
+                    completed: false,
+                    status: 'todo'
                 }
-            });
-
-            // Show active tab content
-            elements.tabContents.forEach(content => {
-                if (content.id === `${tabId}-tab`) {
-                    content.classList.add('active');
-                } else {
-                    content.classList.remove('active');
-                }
-            });
-
-            // Load data for the tab if needed
-            if (tabId === 'classes') {
-                loadClasses();
-            } else if (tabId === 'students') {
-                loadStudents();
-            }
+            ];
+            
+            tasks = sampleTasks;
+            renderTasks();
+            updateStats();
         }
 
-        // Load classes from Supabase
-        async function loadClasses() {
-            try {
-                const { data, error } = await supabase
-                    .from('classes')
-                    .select('*')
-                    .eq('teacher_id', currentUser.id)
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                classes = data || [];
-                renderClasses();
-                populateClassFilters();
-                updateStats();
-            } catch (error) {
-                console.error('Error loading classes:', error);
-                showNotification('Failed to load classes', 'error');
+        // Render tasks based on current view
+        function renderTasks() {
+            if (currentView === 'list') {
+                renderTaskList();
+            } else if (currentView === 'kanban') {
+                renderKanbanBoard();
+            } else if (currentView === 'calendar') {
+                renderCalendar();
             }
+            
+            renderDeadlines();
+            updateCategoryTags();
         }
 
-        // Render classes in the table
-        function renderClasses() {
-            elements.classesTableBody.innerHTML = '';
+        // Render task list view
+        function renderTaskList() {
+            elements.tasksContainer.innerHTML = '';
+            
+            if (tasks.length === 0) {
+                elements.tasksContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-tasks"></i>
+                        <h3>No tasks found</h3>
+                        <p>Add a new task to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const filteredTasks = getFilteredTasks();
+            
+            filteredTasks.forEach(task => {
+                const taskElement = createTaskElement(task);
+                elements.tasksContainer.appendChild(taskElement);
+            });
+        }
 
-            if (classes.length === 0) {
-                elements.classesTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="5" style="text-align: center; padding: 20px;">
-                            No classes found. <a href="#" id="add-first-class" style="color: var(--primary);">Add your first class</a>
-                        </td>
-                    </tr>
+        // Render kanban board view
+        function renderKanbanBoard() {
+            const todoContainer = document.getElementById('kanban-todo');
+            const inProgressContainer = document.getElementById('kanban-inprogress');
+            const completedContainer = document.getElementById('kanban-completed');
+            
+            todoContainer.innerHTML = '';
+            inProgressContainer.innerHTML = '';
+            completedContainer.innerHTML = '';
+            
+            const filteredTasks = getFilteredTasks();
+            
+            // Count tasks for each column
+            let todoCount = 0;
+            let inProgressCount = 0;
+            let completedCount = 0;
+            
+            filteredTasks.forEach(task => {
+                const taskElement = createTaskElement(task, true);
+                
+                if (task.status === 'todo') {
+                    todoContainer.appendChild(taskElement);
+                    todoCount++;
+                } else if (task.status === 'inprogress') {
+                    inProgressContainer.appendChild(taskElement);
+                    inProgressCount++;
+                } else if (task.status === 'completed') {
+                    completedContainer.appendChild(taskElement);
+                    completedCount++;
+                }
+            });
+            
+            // Update counts
+            document.getElementById('todo-count').textContent = todoCount;
+            document.getElementById('inprogress-count').textContent = inProgressCount;
+            document.getElementById('completed-count').textContent = completedCount;
+            
+            // Make columns droppable
+            makeKanbanDroppable();
+        }
+
+        // Render calendar view
+        function renderCalendar() {
+            // This would be implemented to show tasks on a calendar
+            elements.calendarView.innerHTML = '<p>Calendar view would be implemented here.</p>';
+        }
+
+        // Create a task element
+        function createTaskElement(task, isKanban = false) {
+            const taskElement = document.createElement('div');
+            taskElement.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
+            taskElement.setAttribute('data-id', task.id);
+            taskElement.setAttribute('draggable', isKanban);
+            
+            if (isKanban) {
+                taskElement.addEventListener('dragstart', handleDragStart);
+            }
+            
+            const priorityBadge = `<span class="priority-badge priority-${task.priority}-badge">${task.priority.toUpperCase()}</span>`;
+            const categoryBadge = `<span class="category-tag"><i class="fas fa-tag"></i> ${task.category}</span>`;
+            
+            taskElement.innerHTML = `
+                <div class="task-info">
+                    <h3>
+                        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
+                        ${task.title}
+                        ${priorityBadge}
+                    </h3>
+                    <p>${task.description}</p>
+                    <div class="task-meta">
+                        <span><i class="fas fa-book"></i> ${task.subject}</span>
+                        <span><i class="fas fa-calendar"></i> ${formatDate(task.dueDate)}</span>
+                        <span><i class="fas fa-clock"></i> ${task.time || 'All day'}</span>
+                        ${categoryBadge}
+                    </div>
+                </div>
+                <div class="task-actions">
+                    <button class="btn btn-sm btn-accent edit-task" data-id="${task.id}"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-danger delete-task" data-id="${task.id}"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            
+            // Add event listeners
+            const checkbox = taskElement.querySelector('.task-checkbox');
+            checkbox.addEventListener('change', () => toggleTaskCompletion(task.id));
+            
+            const editBtn = taskElement.querySelector('.edit-task');
+            editBtn.addEventListener('click', () => editTask(task.id));
+            
+            const deleteBtn = taskElement.querySelector('.delete-task');
+            deleteBtn.addEventListener('click', () => deleteTask(task.id));
+            
+            return taskElement;
+        }
+
+        // Render upcoming deadlines
+        function renderDeadlines() {
+            elements.deadlinesContainer.innerHTML = '';
+            
+            const upcomingTasks = tasks
+                .filter(task => !task.completed)
+                .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+                .slice(0, 5);
+            
+            if (upcomingTasks.length === 0) {
+                elements.deadlinesContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-check"></i>
+                        <p>No upcoming deadlines</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            upcomingTasks.forEach(task => {
+                const deadlineElement = document.createElement('div');
+                deadlineElement.className = 'schedule-item';
+                
+                const daysUntilDue = Math.ceil((new Date(task.dueDate) - new Date()) / (1000 * 60 * 60 * 24));
+                let daysText = 'Today';
+                
+                if (daysUntilDue > 0) {
+                    daysText = `In ${daysUntilDue} day${daysUntilDue > 1 ? 's' : ''}`;
+                } else if (daysUntilDue < 0) {
+                    daysText = `${Math.abs(daysUntilDue)} day${Math.abs(daysUntilDue) > 1 ? 's' : ''} ago`;
+                }
+                
+                deadlineElement.innerHTML = `
+                    <div class="schedule-time">
+                        <i class="fas fa-clock"></i> ${task.time || 'All day'} - ${daysText}
+                    </div>
+                    <strong>${task.title}</strong>
+                    <div>${task.subject} • ${task.priority.toUpperCase()} Priority</div>
                 `;
                 
-                document.getElementById('add-first-class').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    openClassModal();
-                });
-                return;
-            }
-
-            classes.forEach(cls => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${cls.name}</td>
-                    <td>${cls.subject}</td>
-                    <td>${cls.academic_year}</td>
-                    <td>${cls.student_count || 0}</td>
-                    <td>
-                        <button class="action-btn btn-view" data-id="${cls.id}">View</button>
-                        <button class="action-btn btn-edit" data-id="${cls.id}">Edit</button>
-                        <button class="action-btn btn-delete" data-id="${cls.id}">Delete</button>
-                    </td>
-                `;
-                elements.classesTableBody.appendChild(row);
-            });
-
-            // Add event listeners to action buttons
-            document.querySelectorAll('.btn-edit').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const classId = btn.getAttribute('data-id');
-                    openClassModal(classId);
-                });
-            });
-
-            document.querySelectorAll('.btn-delete').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const classId = btn.getAttribute('data-id');
-                    deleteClass(classId);
-                });
+                elements.deadlinesContainer.appendChild(deadlineElement);
             });
         }
 
-        // Load students from Supabase
-        async function loadStudents() {
-            try {
-                const { data, error } = await supabase
-                    .from('students')
-                    .select(`
-                        *,
-                        classes (name)
-                    `)
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                students = data || [];
-                renderStudents();
-                updateStats();
-            } catch (error) {
-                console.error('Error loading students:', error);
-                showNotification('Failed to load students', 'error');
-            }
-        }
-
-        // Render students in the table
-        function renderStudents() {
-            elements.studentsTableBody.innerHTML = '';
-
-            if (students.length === 0) {
-                elements.studentsTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 20px;">
-                            No students found. <a href="#" id="add-first-student" style="color: var(--primary);">Add your first student</a>
-                        </td>
-                    </tr>
+        // Update category tags
+        function updateCategoryTags() {
+            elements.categoryTags.innerHTML = '';
+            
+            const categories = [...new Set(tasks.map(task => task.category))];
+            
+            categories.forEach(category => {
+                const categoryCount = tasks.filter(task => task.category === category).length;
+                const completedCount = tasks.filter(task => task.category === category && task.completed).length;
+                
+                const tag = document.createElement('div');
+                tag.className = 'category-tag';
+                tag.innerHTML = `
+                    <i class="fas fa-tag"></i> 
+                    ${category.charAt(0).toUpperCase() + category.slice(1)} 
+                    <span style="margin-left: 5px; background: var(--primary); color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem;">
+                        ${completedCount}/${categoryCount}
+                    </span>
                 `;
                 
-                document.getElementById('add-first-student').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    openStudentModal();
+                tag.addEventListener('click', () => {
+                    elements.filterCategory.value = category;
+                    filterTasks();
                 });
-                return;
-            }
-
-            students.forEach(student => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${student.id.substring(0, 8)}</td>
-                    <td>${student.first_name}</td>
-                    <td>${student.last_name}</td>
-                    <td>${student.email || '-'}</td>
-                    <td>${student.classes?.name || 'Unassigned'}</td>
-                    <td>${new Date(student.enrollment_date).toLocaleDateString()}</td>
-                    <td>
-                        <button class="action-btn btn-view" data-id="${student.id}">View</button>
-                        <button class="action-btn btn-edit" data-id="${student.id}">Edit</button>
-                        <button class="action-btn btn-delete" data-id="${student.id}">Delete</button>
-                    </td>
-                `;
-                elements.studentsTableBody.appendChild(row);
-            });
-
-            // Add event listeners to action buttons
-            document.querySelectorAll('.btn-edit').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const studentId = btn.getAttribute('data-id');
-                    openStudentModal(studentId);
-                });
-            });
-
-            document.querySelectorAll('.btn-delete').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const studentId = btn.getAttribute('data-id');
-                    deleteStudent(studentId);
-                });
+                
+                elements.categoryTags.appendChild(tag);
             });
         }
 
-        // Populate class filters dropdowns
-        function populateClassFilters() {
-            // Clear existing options
-            elements.classFilter.innerHTML = '<option value="">All Classes</option>';
-            elements.studentClass.innerHTML = '<option value="">Select Class</option>';
-
-            // Add classes to filters
-            classes.forEach(cls => {
-                elements.classFilter.innerHTML += `<option value="${cls.id}">${cls.name}</option>`;
-                elements.studentClass.innerHTML += `<option value="${cls.id}">${cls.name}</option>`;
-            });
-        }
-
-        // Filter students by class
-        function filterStudentsByClass() {
-            const classId = elements.classFilter.value;
+        // Get filtered tasks based on current filters
+        function getFilteredTasks() {
+            let filteredTasks = [...tasks];
             
-            if (!classId) {
-                renderStudents();
-                return;
+            // Filter by priority
+            if (elements.filterPriority.value !== 'all') {
+                filteredTasks = filteredTasks.filter(task => task.priority === elements.filterPriority.value);
             }
             
-            const filteredStudents = students.filter(student => student.class_id === classId);
+            // Filter by status
+            if (elements.filterStatus.value !== 'all') {
+                filteredTasks = filteredTasks.filter(task => 
+                    elements.filterStatus.value === 'completed' ? task.completed : !task.completed
+                );
+            }
             
-            elements.studentsTableBody.innerHTML = '';
-            filteredStudents.forEach(student => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${student.id.substring(0, 8)}</td>
-                    <td>${student.first_name}</td>
-                    <td>${student.last_name}</td>
-                    <td>${student.email || '-'}</td>
-                    <td>${student.classes?.name || 'Unassigned'}</td>
-                    <td>${new Date(student.enrollment_date).toLocaleDateString()}</td>
-                    <td>
-                        <button class="action-btn btn-view" data-id="${student.id}">View</button>
-                        <button class="action-btn btn-edit" data-id="${student.id}">Edit</button>
-                        <button class="action-btn btn-delete" data-id="${student.id}">Delete</button>
-                    </td>
-                `;
-                elements.studentsTableBody.appendChild(row);
-            });
+            // Filter by category
+            if (elements.filterCategory.value !== 'all') {
+                filteredTasks = filteredTasks.filter(task => task.category === elements.filterCategory.value);
+            }
+            
+            // Filter by search term
+            const searchTerm = elements.taskSearch.value.toLowerCase();
+            if (searchTerm) {
+                filteredTasks = filteredTasks.filter(task => 
+                    task.title.toLowerCase().includes(searchTerm) || 
+                    task.description.toLowerCase().includes(searchTerm) ||
+                    task.subject.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            return filteredTasks;
         }
 
-        // Open class modal for adding or editing
-        function openClassModal(classId = null) {
-            editingClassId = classId;
+        // Filter tasks based on current criteria
+        function filterTasks() {
+            renderTasks();
+        }
+
+        // Switch between views
+        function switchView(view) {
+            currentView = view;
             
-            if (classId) {
-                // Editing existing class
-                const cls = classes.find(c => c.id === classId);
-                if (cls) {
-                    elements.classModalTitle.textContent = 'Edit Class';
-                    elements.classId.value = cls.id;
-                    elements.className.value = cls.name;
-                    elements.classSubject.value = cls.subject;
-                    elements.classAcademicYear.value = cls.academic_year;
+            // Update active view option
+            elements.viewOptions.forEach(option => {
+                if (option.getAttribute('data-view') === view) {
+                    option.classList.add('active');
+                } else {
+                    option.classList.remove('active');
                 }
-            } else {
-                // Adding new class
-                elements.classModalTitle.textContent = 'Add New Class';
-                elements.classForm.reset();
-                elements.classId.value = '';
+            });
+            
+            // Show/hide views
+            elements.taskListView.style.display = view === 'list' ? 'block' : 'none';
+            elements.kanbanBoard.style.display = view === 'kanban' ? 'grid' : 'none';
+            elements.calendarView.style.display = view === 'calendar' ? 'block' : 'none';
+            
+            renderTasks();
+        }
+
+        // Handle quick actions
+        function handleQuickAction(action) {
+            switch (action) {
+                case 'add-task':
+                    document.getElementById('task-title').focus();
+                    break;
+                case 'today-tasks':
+                    elements.filterStatus.value = 'pending';
+                    elements.taskSearch.value = '';
+                    filterTasks();
+                    break;
+                case 'high-priority':
+                    elements.filterPriority.value = 'high';
+                    filterTasks();
+                    break;
+                case 'completed':
+                    elements.filterStatus.value = 'completed';
+                    filterTasks();
+                    break;
             }
-            
-            elements.classModal.style.display = 'flex';
         }
 
-        // Open student modal for adding or editing
-        function openStudentModal(studentId = null) {
-            editingStudentId = studentId;
-            
-            if (studentId) {
-                // Editing existing student
-                const student = students.find(s => s.id === studentId);
-                if (student) {
-                    elements.studentModalTitle.textContent = 'Edit Student';
-                    elements.studentId.value = student.id;
-                    elements.studentFirstName.value = student.first_name;
-                    elements.studentLastName.value = student.last_name;
-                    elements.studentEmail.value = student.email || '';
-                    elements.studentClass.value = student.class_id || '';
-                }
-            } else {
-                // Adding new student
-                elements.studentModalTitle.textContent = 'Add New Student';
-                elements.studentForm.reset();
-                elements.studentId.value = '';
-            }
-            
-            elements.studentModal.style.display = 'flex';
-        }
-
-        // Close all modals
-        function closeModals() {
-            elements.classModal.style.display = 'none';
-            elements.studentModal.style.display = 'none';
-        }
-
-        // Handle class form submission
-        async function handleClassSubmit(e) {
+        // Handle task form submission
+        function handleTaskSubmit(e) {
             e.preventDefault();
             
-            const classData = {
-                name: elements.className.value,
-                subject: elements.classSubject.value,
-                academic_year: elements.classAcademicYear.value,
-                teacher_id: currentUser.id
+            const title = document.getElementById('task-title').value;
+            const subject = document.getElementById('task-subject').value;
+            const description = document.getElementById('task-description').value;
+            const time = document.getElementById('task-time').value;
+            const dueDate = document.getElementById('task-due-date').value;
+            const priority = document.getElementById('task-priority').value;
+            const category = document.getElementById('task-category').value;
+            
+            const newTask = {
+                id: Date.now(), // Simple ID generation for demo
+                title,
+                subject,
+                description,
+                time,
+                dueDate,
+                priority,
+                category,
+                completed: false,
+                status: 'todo'
             };
             
-            try {
-                if (editingClassId) {
-                    // Update existing class
-                    const { error } = await supabase
-                        .from('classes')
-                        .update(classData)
-                        .eq('id', editingClassId);
-                    
-                    if (error) throw error;
-                    
-                    showNotification('Class updated successfully', 'success');
-                } else {
-                    // Create new class
-                    const { error } = await supabase
-                        .from('classes')
-                        .insert([classData]);
-                    
-                    if (error) throw error;
-                    
-                    showNotification('Class created successfully', 'success');
-                }
+            tasks.push(newTask);
+            renderTasks();
+            updateStats();
+            
+            // Reset form
+            elements.taskForm.reset();
+            
+            showNotification('Task added successfully!', 'success');
+        }
+
+        // Toggle task completion
+        function toggleTaskCompletion(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.completed = !task.completed;
+                task.status = task.completed ? 'completed' : 'todo';
+                renderTasks();
+                updateStats();
                 
-                closeModals();
-                loadClasses();
-            } catch (error) {
-                console.error('Error saving class:', error);
-                showNotification('Failed to save class', 'error');
+                showNotification(`Task marked as ${task.completed ? 'completed' : 'pending'}`, 'success');
             }
         }
 
-        // Handle student form submission
-        async function handleStudentSubmit(e) {
-            e.preventDefault();
-            
-            const studentData = {
-                first_name: elements.studentFirstName.value,
-                last_name: elements.studentLastName.value,
-                email: elements.studentEmail.value || null,
-                class_id: elements.studentClass.value
-            };
-            
-            try {
-                if (editingStudentId) {
-                    // Update existing student
-                    const { error } = await supabase
-                        .from('students')
-                        .update(studentData)
-                        .eq('id', editingStudentId);
-                    
-                    if (error) throw error;
-                    
-                    showNotification('Student updated successfully', 'success');
-                } else {
-                    // Create new student
-                    const { error } = await supabase
-                        .from('students')
-                        .insert([studentData]);
-                    
-                    if (error) throw error;
-                    
-                    showNotification('Student created successfully', 'success');
-                }
-                
-                closeModals();
-                loadStudents();
-            } catch (error) {
-                console.error('Error saving student:', error);
-                showNotification('Failed to save student', 'error');
-            }
+        // Edit task
+        function editTask(taskId) {
+            // This would open a modal or form to edit the task
+            showNotification('Edit feature would be implemented here', 'success');
         }
 
-        // Delete a class
-        async function deleteClass(classId) {
-            if (!confirm('Are you sure you want to delete this class? This action cannot be undone.')) {
-                return;
-            }
-            
-            try {
-                // First check if the class has any students
-                const { data: students, error: studentsError } = await supabase
-                    .from('students')
-                    .select('id')
-                    .eq('class_id', classId);
-                
-                if (studentsError) throw studentsError;
-                
-                if (students && students.length > 0) {
-                    showNotification('Cannot delete class with students. Please reassign or delete the students first.', 'error');
-                    return;
-                }
-                
-                // Delete the class
-                const { error } = await supabase
-                    .from('classes')
-                    .delete()
-                    .eq('id', classId);
-                
-                if (error) throw error;
-                
-                showNotification('Class deleted successfully', 'success');
-                loadClasses();
-            } catch (error) {
-                console.error('Error deleting class:', error);
-                showNotification('Failed to delete class', 'error');
-            }
-        }
-
-        // Delete a student
-        async function deleteStudent(studentId) {
-            if (!confirm('Are you sure you want to delete this student? This action cannot be undone.')) {
-                return;
-            }
-            
-            try {
-                const { error } = await supabase
-                    .from('students')
-                    .delete()
-                    .eq('id', studentId);
-                
-                if (error) throw error;
-                
-                showNotification('Student deleted successfully', 'success');
-                loadStudents();
-            } catch (error) {
-                console.error('Error deleting student:', error);
-                showNotification('Failed to delete student', 'error');
+        // Delete task
+        function deleteTask(taskId) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                tasks = tasks.filter(t => t.id !== taskId);
+                renderTasks();
+                updateStats();
+                showNotification('Task deleted successfully', 'success');
             }
         }
 
         // Update statistics
         function updateStats() {
-            elements.totalClasses.textContent = classes.length;
-            elements.totalStudents.textContent = students.length;
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.completed).length;
+            const pending = total - completed;
+            const progress = total > 0 ? (completed / total) * 100 : 0;
             
-            // For demonstration - in a real app, you would calculate pending assignments
-            elements.pendingAssignments.textContent = Math.floor(Math.random() * 10);
+            elements.totalTasks.textContent = total;
+            elements.completedTasks.textContent = completed;
+            elements.pendingTasks.textContent = pending;
+            elements.completionProgress.style.width = `${progress}%`;
+        }
+
+        // Format date for display
+        function formatDate(dateString) {
+            const options = { month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('en-PH', options);
         }
 
         // Show notification
         function showNotification(message, type = 'success') {
-            elements.notification.textContent = message;
+            elements.notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+                ${message}
+            `;
             elements.notification.className = `notification ${type}`;
             elements.notification.classList.add('show');
             
@@ -1522,6 +1634,50 @@
         async function logout() {
             await supabase.auth.signOut();
             window.location.href = 'index.html';
+        }
+
+        // Drag and drop for Kanban board
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.getAttribute('data-id'));
+        }
+
+        function makeKanbanDroppable() {
+            const columns = document.querySelectorAll('.kanban-tasks');
+            
+            columns.forEach(column => {
+                column.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    column.style.backgroundColor = '#f0f0f0';
+                });
+                
+                column.addEventListener('dragleave', () => {
+                    column.style.backgroundColor = '';
+                });
+                
+                column.addEventListener('drop', e => {
+                    e.preventDefault();
+                    column.style.backgroundColor = '';
+                    
+                    const taskId = parseInt(e.dataTransfer.getData('text/plain'));
+                    const task = tasks.find(t => t.id === taskId);
+                    
+                    if (task) {
+                        if (column.id === 'kanban-todo') {
+                            task.status = 'todo';
+                            task.completed = false;
+                        } else if (column.id === 'kanban-inprogress') {
+                            task.status = 'inprogress';
+                            task.completed = false;
+                        } else if (column.id === 'kanban-completed') {
+                            task.status = 'completed';
+                            task.completed = true;
+                        }
+                        
+                        renderTasks();
+                        updateStats();
+                    }
+                });
+            });
         }
 
         // Initialize the application
